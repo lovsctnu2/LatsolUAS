@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pembelajaran</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Dasar untuk Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F8F8F8; /* Hampir putih */
+            color: #333333; /* Abu-abu gelap untuk teks utama */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: #000000; /* Hitam pekat */
+            color: #FFFFFF; /* Putih */
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .header .logo {
+            font-size: 1.8em;
+            font-weight: 700; /* Tebal */
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+
+        .header .user-profile {
+            font-size: 1.1em;
+            color: #FFFFFF;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 40px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            text-align: center;
+            min-height: calc(100vh - 120px);
+        }
+
+        .main-content h1 {
+            width: 100%;
+            color: #1A1A1A; /* Sangat gelap, hampir hitam */
+            margin-bottom: 40px; /* Jarak lebih besar dari kartu */
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px; /* Lebar maksimum kontainer kartu sedikit dikurangi */
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: #FFFFFF; /* Putih */
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Bayangan lebih jelas */
+            padding: 25px; /* Padding card sedikit dikecilkan */
+            /* Flex properties for cards */
+            flex: 1 1 calc(33.33% - 30px); /* Kunci: Mengurangi lebar basis untuk memperkecil card */
+                                          /* 30px adalah kompensasi untuk gap, agar total lebar mendekati 100% */
+            min-width: 100px; /* Lebar minimum card lebih kecil */
+            max-width: 250px; /* Batas lebar maksimum card untuk menjaga proporsi */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-8px); /* Efek naik lebih tinggi */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Bayangan lebih kuat */
+        }
+
+        .card h2 {
+            color: #007BFF; /* Biru terang */
+            margin-bottom: 25px;
+            font-size: 1.7em; /* Ukuran judul kartu sedikit disesuaikan */
+            font-weight: 600; /* Semi-bold */
+            border-bottom: 2px solid #E0E0E0; /* Garis bawah abu-abu terang */
+            padding-bottom: 12px;
+            width: 100%;
+        }
+
+        .card-buttons-container {
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .card-button {
+            display: block;
+            width: 90%; /* Lebar tombol diperbesar sedikit */
+            padding: 14px 20px;
+            margin: 12px auto; /* Margin antar tombol sedikit disesuaikan */
+            border: none;
+            border-radius: 8px;
+            color: #FFFFFF; /* Teks tombol putih */
+            font-size: 1.05em;
+            font-weight: 600; /* Semi-bold */
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+
+        .card-button.summary {
+            background-color: #007BFF; /* Biru terang untuk rangkuman */
+        }
+
+        .card-button.summary:hover {
+            background-color: #0056b3; /* Biru lebih gelap saat hover */
+            transform: translateY(-3px);
+        }
+
+        .card-button.exercise {
+            background-color: #4CAF50; /* Hijau cerah untuk latihan soal */
+        }
+
+        .card-button.exercise:hover {
+            background-color: #45a049; /* Hijau lebih gelap saat hover */
+            transform: translateY(-3px);
+        }
+
+        .footer {
+            background-color: #000000; /* Hitam pekat */
+            color: #FFFFFF; /* Putih */
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Media Queries untuk Responsif */
+        /* Untuk layar tablet (misal: 769px - 992px) */
+        @media (max-width: 992px) {
+            .card {
+                flex: 1 1 calc(50% - 25px); /* Dua kartu per baris pada tablet, gap 20px */
+                max-width: 400px;
+            }
+            .card-container {
+                gap: 20px;
+            }
+        }
+
+        /* Untuk layar mobile (misal: di bawah 768px) */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                padding: 15px 20px;
+            }
+            .header .logo {
+                margin-bottom: 10px;
+            }
+            .main-content {
+                padding: 20px 15px;
+            }
+            .main-content h1 {
+                font-size: 2em;
+                margin-bottom: 30px;
+            }
+            .card {
+                flex: 1 1 95%; /* Satu kartu per baris pada mobile, dengan sedikit margin */
+                padding: 20px;
+                max-width: none; /* Hilangkan batasan lebar maksimum */
+            }
+            .card h2 {
+                font-size: 1.5em;
+            }
+            .card-button {
+                width: 98%;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="#" class="logo">Latsol UAS Sisfor</a>
+        <div class="user-profile">Halo, Calon IPK 4!</div>
+    </header>
+
+    <main class="main-content">
+        <h1>Pilih Materi Belajarmu!</h1>
+
+        <div class="card-container"> <div class="card">
+                <h2>DESAIN ANTARMUKA</h2>
+                <div class="card-buttons-container">
+                    <a href="https://docs.google.com/document/d/1Yr7cTks0gzMLV_JExeJA6x3SKo8sgU-l8Teg1B4Knt0/edit?usp=sharing" class="card-button summary">SEMUA RANGKUMAN</a>
+                    <a href="kuis_damp.html" class="card-button exercise">SEMUA LATIHAN SOAL</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>PEMROGRAMAN LANJUT</h2>
+                <div class="card-buttons-container">
+                    <a href="https://docs.google.com/document/d/1DmGP_qLTxyErGxEffdda1Rq8lfl6hOwnO5stC-baReQ/edit?usp=sharing" class="card-button summary">SEMUA RANGKUMAN</a>
+                    <a href="kuis_pemlan.html" class="card-button exercise">SEMUA LATIHAN SOAL</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>PEMROGRAMAN WEB</h2>
+                <div class="card-buttons-container">
+                    <a href="https://docs.google.com/document/d/1nPV8J3RnAz686zYVyvnsiJx6LGo5QDdvcrnn_tajmMU/edit?tab=t.0" class="card-button summary">SEMUA RANGKUMAN</a>
+                    <a href="kuis_pemweb.html" class="card-button exercise">SEMUA LATIHAN SOAL</a>
+                </div>
+            </div>
+        </div> </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Belajar Bareng. Semua Hak Dilindungi.</p>
+    </footer>
+</body>
+</html>

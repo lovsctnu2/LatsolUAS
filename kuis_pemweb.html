@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Latsol Pemweb</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      color: #333;
+    }
+    .quiz-section {
+      margin-bottom: 40px;
+    }
+    .question {
+      background-color: #fff;
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 4px solid #007BFF;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .explanation {
+      margin-top: 10px;
+      padding: 8px;
+      background-color: #e9ecef;
+      font-size: 14px;
+      display: none;
+      border-left: 3px solid #17a2b8;
+    }
+  </style>
+</head>
+<body>
+
+<h1>SEMANGAT UAS PEMWEB YEAH, btw cmiiw yg buat gpt bukan nabi</h1>
+
+<div id="quiz-container"></div>
+<button onclick="checkAnswers()">Submit Jawaban</button>
+<p id="result"></p>
+
+<script>
+const quizData = [
+  {
+    question: "1. Metode HTTP manakah yang secara semantik digunakan untuk mengambil data dari server?",
+    options: ["GET", "POST", "PUT", "DELETE"],
+    correct: 0,
+    explanation: "GET digunakan untuk mengambil data dari server tanpa mengubah apa pun."
+  },
+  {
+    question: "2. Manakah metode HTTP berikut yang bersifat idempoten dan tidak aman?",
+    options: ["POST", "PATCH", "DELETE", "TRACE"],
+    correct: 2,
+    explanation: "DELETE bersifat idempoten (berulang kali tidak mengubah hasil), tetapi menghapus data, sehingga tidak aman."
+  },
+  {
+    question: "3. Perbedaan utama antara PUT dan PATCH adalah:",
+    options: [
+      "PUT digunakan untuk mengambil sumber daya.",
+      "PUT memperbarui seluruh sumber daya, PATCH hanya sebagian.",
+      "PATCH hanya digunakan dalam browser.",
+      "PUT lebih aman daripada PATCH."
+    ],
+    correct: 1,
+    explanation: "PUT mengganti seluruh sumber daya, PATCH hanya memperbarui bagian tertentu."
+  },
+  {
+    question: "4. Apa karakteristik dari metode POST?",
+    options: [
+      "Tidak aman dan tidak idempoten",
+      "Aman dan idempoten",
+      "Aman dan tidak idempoten",
+      "Idempoten dan bisa di-cache"
+    ],
+    correct: 0,
+    explanation: "POST tidak aman (dapat mengubah data) dan tidak idempoten (berulang kali bisa berdampak berbeda)."
+  },
+  {
+    question: "5. Untuk mengecek dukungan metode HTTP dari sebuah endpoint, kita menggunakan:",
+    options: ["GET", "POST", "HEAD", "OPTIONS"],
+    correct: 3,
+    explanation: "OPTIONS digunakan untuk meminta informasi tentang metode yang didukung oleh server."
+  },
+  {
+    question: "6. Apa yang terjadi jika method tidak dispesifikasikan di tag <form>?",
+    options: [
+      "Formulir tidak bisa dikirim",
+      "Akan terjadi error di browser",
+      "Default method yang digunakan adalah GET",
+      "Default method yang digunakan adalah POST"
+    ],
+    correct: 2,
+    explanation: "GET adalah default method jika tidak dispesifikasikan dalam tag <form>."
+  },
+  {
+    question: "7. Mengapa GET tidak cocok untuk mengirimkan data seperti password?",
+    options: [
+      "Karena tidak didukung browser lama",
+      "Karena data dikirim dalam header",
+      "Karena data dikodekan dalam URL yang bisa terlihat",
+      "Karena tidak bisa digunakan di formulir HTML"
+    ],
+    correct: 2,
+    explanation: "GET menyertakan data dalam URL yang dapat dilihat, disalin, dan di-cache."
+  },
+  {
+    question: "8. Perbedaan utama antara metode GET dan POST dalam formulir?",
+    options: [
+      "GET digunakan untuk unggah file",
+      "POST menyisipkan data ke URL",
+      "GET menyimpan data di header",
+      "GET mengirim lewat URL, POST lewat body"
+    ],
+    correct: 3,
+    explanation: "GET menaruh data di URL, POST mengirim melalui body HTTP request."
+  },
+  {
+    question: "9. Superglobal PHP mana yang sebaiknya digunakan untuk keamanan?",
+    options: [
+      "$_FORM",
+      "$_REQUEST",
+      "$_GLOBAL",
+      "$_GET dan $_POST secara eksplisit"
+    ],
+    correct: 3,
+    explanation: "Gunakan $_GET atau $_POST secara eksplisit untuk menghindari ambiguitas yang mungkin terjadi pada $_REQUEST."
+  },
+  {
+    question: "10. Fungsi dari atribut enctype=\"multipart/form-data\" adalah:",
+    options: [
+      "Mengaktifkan JavaScript pada file upload",
+      "Mengizinkan input bertipe teks",
+      "Menginformasikan browser bahwa formulir akan mengandung file",
+      "Memvalidasi MIME type file"
+    ],
+    correct: 2,
+    explanation: "enctype=\"multipart/form-data\" dibutuhkan untuk mengirimkan data biner (file) dari formulir."
+  },
+  {
+    question: "11. Metode HTTP wajib untuk unggah file via form?",
+    options: ["GET", "PUT", "DELETE", "POST"],
+    correct: 3,
+    explanation: "POST adalah satu-satunya metode standar untuk unggah file via formulir HTML."
+  },
+  {
+    question: "12. Mana yang BUKAN bagian dari array $_FILES?",
+    options: ["['name']", "['tmp_name']", "['data']", "['error']"],
+    correct: 2,
+    explanation: "['data'] tidak ada di $_FILES. Anda harus membaca isi file secara manual dari ['tmp_name']."
+  },
+  {
+    question: "13. Fungsi PHP untuk memindahkan file yang diunggah adalah:",
+    options: ["move_file()", "rename_file()", "file_upload_move()", "move_uploaded_file()"],
+    correct: 3,
+    explanation: "move_uploaded_file() digunakan untuk menyimpan file dari folder sementara ke lokasi permanen."
+  },
+  {
+    question: "14. Mengapa validasi sisi server tetap wajib?",
+    options: [
+      "Karena server butuh lebih banyak data",
+      "Karena validasi klien bisa dilewati",
+      "Karena validasi klien lambat",
+      "Karena PHP tidak mendukung validasi"
+    ],
+    correct: 1,
+    explanation: "Validasi sisi klien bisa dimanipulasi, maka validasi sisi server selalu wajib."
+  },
+  {
+    question: "15. Atribut input HTML yang menentukan nama variabel PHP adalah:",
+    options: ["id", "class", "name", "label"],
+    correct: 2,
+    explanation: "Atribut 'name' digunakan untuk membuat kunci variabel dalam $_GET atau $_POST."
+  },
+  {
+    question: "16. Di mana penempatan script JavaScript eksternal yang paling direkomendasikan agar tidak menghambat proses pemuatan halaman?",
+    options: ["Di dalam <head> tanpa atribut", "Di awal <body>", "Di akhir <body> atau dengan atribut defer", "Setelah tag penutup </html>"],
+    correct: 2,
+    explanation: "Penempatan script di akhir <body> atau dengan atribut defer memungkinkan HTML dimuat dulu sebelum JavaScript dijalankan, sehingga tidak menghambat rendering."
+  },
+  {
+    question: "17. Apa perbedaan utama antara deklarasi variabel dengan var, let, dan const?",
+    options: [
+      "var dan let bersifat global, const bersifat lokal",
+      "var memiliki block scope, let dan const tidak",
+      "var memiliki function scope, let dan const memiliki block scope",
+      "const dapat diubah nilainya kapan saja"
+    ],
+    correct: 2,
+    explanation: "var memiliki function scope, sedangkan let dan const memiliki block scope. Nilai const tidak dapat diubah."
+  },
+  {
+    question: "18. Fungsi dari method addEventListener() adalah...",
+    options: [
+      "Menambahkan elemen baru ke DOM",
+      "Menangani peristiwa (event) seperti klik atau input",
+      "Mencari elemen dalam DOM",
+      "Mengatur waktu eksekusi JavaScript"
+    ],
+    correct: 1,
+    explanation: "addEventListener() digunakan untuk menjalankan fungsi saat peristiwa tertentu terjadi, seperti klik, hover, submit, dll."
+  },
+  {
+    question: "19. Manakah dari pernyataan berikut yang BENAR tentang innerHTML dan textContent?",
+    options: [
+      "innerHTML hanya untuk input, textContent untuk semua elemen",
+      "textContent mengembalikan HTML yang dirender",
+      "innerHTML bisa menyisipkan elemen HTML, textContent hanya teks murni",
+      "textContent bisa menghapus elemen dari DOM"
+    ],
+    correct: 2,
+    explanation: "innerHTML membaca dan menyisipkan HTML sebagai elemen, sedangkan textContent hanya menangani teks biasa tanpa memproses tag."
+  },
+  {
+    question: "20. Apa hasil dari kode berikut?\n\nconst el = document.querySelector('#box');\nel.classList.toggle('aktif');",
+    options: [
+      "Selalu menambahkan class 'aktif'",
+      "Selalu menghapus class 'aktif'",
+      "Menambahkan jika belum ada, menghapus jika sudah ada",
+      "Tidak melakukan apa-apa"
+    ],
+    correct: 2,
+    explanation: "classList.toggle() akan menambahkan class jika belum ada dan menghapusnya jika sudah ada."
+  },
+  {
+    question: "21. Perhatikan kode berikut:\n\nconst el = document.createElement('div');\nel.textContent = 'Halo';\ndocument.body.appendChild(el);\n\nApa yang terjadi di halaman?",
+    options: [
+      "Tidak ada perubahan pada halaman",
+      "Tag <div> kosong ditambahkan ke body",
+      "Tag <div> dengan teks 'Halo' ditambahkan ke body",
+      "Terjadi error karena elemen tidak valid"
+    ],
+    correct: 2,
+    explanation: "createElement() membuat elemen baru, textContent mengisi isinya, dan appendChild() menambahkannya ke DOM."
+  },
+  {
+    question: "22. Manakah yang paling tepat untuk memeriksa apakah elemen memiliki class tertentu?",
+    options: [
+      "element.hasClass('nama-class')",
+      "element.className == 'nama-class'",
+      "element.getAttribute('class').includes('nama-class')",
+      "element.classList.contains('nama-class')"
+    ],
+    correct: 3,
+    explanation: "classList.contains() adalah cara standar dan efisien untuk memeriksa apakah class tertentu ada pada elemen."
+  },
+  {
+  question: "23. Apa yang akan dicetak oleh kode berikut?\n\nconsole.log('A');\nsetTimeout(() => console.log('B'), 0);\nconsole.log('C');",
+  options: ["A B C", "B A C", "A C B", "C A B"],
+  correct: 2,
+  explanation: "setTimeout() bersifat asinkron, jadi A dan C dicetak terlebih dahulu secara sinkron, lalu B menyusul setelah event loop memprosesnya."
+},
+{
+  question: "24. Apa tujuan utama penggunaan Promise dalam JavaScript?",
+  options: [
+    "Menghindari deklarasi variabel global",
+    "Menangani event DOM secara efisien",
+    "Membuat program berjalan lebih cepat",
+    "Menangani operasi asinkron secara lebih terstruktur dan terhindar dari callback hell"
+  ],
+  correct: 3,
+  explanation: "Promise memberikan cara yang lebih terstruktur dan bersih dalam menangani kode asinkron, terutama dibandingkan callback berlapis."
+},
+{
+  question: "25. Apa yang terjadi jika Promise dalam Promise.all() gagal?",
+  options: [
+    "Semua Promise tetap dijalankan sampai selesai",
+    "Promise.all() akan fulfilled dengan semua hasil",
+    "Promise.all() langsung rejected dengan alasan dari Promise pertama yang gagal",
+    "Promise yang gagal akan dilewati"
+  ],
+  correct: 2,
+  explanation: "Promise.all() akan rejected segera setelah satu Promise gagal, dan hasil reject tersebut akan menjadi hasil dari Promise.all()."
+},
+{
+  question: "26. Fungsi async dalam JavaScript akan selalu mengembalikan...",
+  options: [
+    "Undefined",
+    "Function",
+    "Promise",
+    "Callback"
+  ],
+  correct: 2,
+  explanation: "Fungsi yang didefinisikan dengan async akan selalu mengembalikan Promise, bahkan jika tidak secara eksplisit mengembalikannya."
+},
+{
+  question: "27. Di dalam fungsi async, apa peran utama dari kata kunci await?",
+  options: [
+    "Menunda seluruh eksekusi skrip sampai Promise selesai",
+    "Menunggu Promise diselesaikan sebelum melanjutkan baris berikutnya",
+    "Membuat fungsi menjadi sinkron sepenuhnya",
+    "Membatalkan Promise jika tidak fulfilled"
+  ],
+  correct: 1,
+  explanation: "await akan menunggu Promise diselesaikan (fulfilled/rejected) sebelum melanjutkan eksekusi baris berikutnya dalam fungsi async."
+},
+{
+  question: "28. Apa perbedaan utama antara Promise.all() dan Promise.allSettled()?",
+  options: [
+    "Promise.all() mengembalikan objek tunggal, allSettled() mengembalikan array",
+    "Promise.all() gagal jika satu gagal, allSettled() tetap fulfilled dan memberikan status semua",
+    "Promise.all() untuk GET, allSettled() untuk POST",
+    "Tidak ada perbedaan"
+  ],
+  correct: 1,
+  explanation: "Promise.allSettled() menyelesaikan semua Promise dan memberi status masing-masing, bahkan jika ada yang gagal."
+},
+{
+  question: "29. Apa hasil dari kode berikut?\n\nfetch('/data')\n  .then(res => res.json())\n  .then(data => console.log(data))\n  .catch(err => console.error(err));",
+  options: [
+    "Data akan dicetak ke console jika respons berhasil dan valid JSON",
+    "fetch akan selalu gagal jika data kosong",
+    "Akan error karena tidak ada header Content-Type",
+    "fetch() tidak dapat mengembalikan JSON"
+  ],
+  correct: 0,
+  explanation: "Jika respons dari /data sukses dan berisi JSON valid, maka data akan dicetak ke console. .catch() akan menangani error jika terjadi."
+},
+{
+  question: "30. Apa peran utama dari method .done() pada jQuery AJAX?",
+  options: [
+    "Menghapus semua permintaan yang tertunda",
+    "Menambahkan efek animasi saat AJAX selesai",
+    "Menangani respons sukses dari permintaan AJAX",
+    "Menampilkan debug log"
+  ],
+  correct: 2,
+  explanation: "Method .done() bekerja mirip seperti .then() pada Promise: dijalankan saat permintaan AJAX berhasil."
+},
+{
+  question: "31. Bagaimana jQuery memastikan kode hanya dijalankan setelah seluruh DOM siap?",
+  options: [
+    "$(document).on('load', function() {})",
+    "$(window).ready(function() {})",
+    "$(document).ready(function() {})",
+    "$('body').onload = function() {}"
+  ],
+  correct: 2,
+  explanation: "$(document).ready() atau shorthand $() digunakan di jQuery untuk menjalankan kode setelah DOM siap diproses."
+},
+{
+  question: "32. Fungsi dari metode jQuery .animate() adalah...",
+  options: [
+    "Menjalankan AJAX secara sinkron",
+    "Membuat animasi kustom dengan mengubah properti CSS secara bertahap",
+    "Memanggil API secara otomatis",
+    "Menginisialisasi efek fade bawaan"
+  ],
+  correct: 1,
+  explanation: ".animate() di jQuery digunakan untuk membuat efek animasi kustom dengan perubahan properti CSS dalam durasi tertentu."
+},
+{
+  question: "33. Apa yang terjadi jika kita memanggil fetch() dan respons HTTP status adalah 404?",
+  options: [
+    "Promise akan langsung rejected",
+    "fetch() akan fulfilled, tetapi properti response.ok akan bernilai false",
+    "fetch() otomatis memanggil catch()",
+    "fetch() melempar error syntax"
+  ],
+  correct: 1,
+  explanation: "fetch() hanya akan rejected jika terjadi error jaringan, bukan error HTTP. Status 404 tetap menghasilkan Promise fulfilled dengan response.ok = false."
+},
+{
+  question: "34. Mengapa penggunaan prepared statements lebih aman dibanding query biasa dalam PDO?",
+  options: [
+    "Karena query dieksekusi lebih cepat oleh browser",
+    "Karena SQL query disisipkan langsung ke dalam HTML",
+    "Karena memisahkan perintah SQL dan data, sehingga mencegah SQL injection",
+    "Karena memaksa data untuk dikonversi ke angka"
+  ],
+  correct: 2,
+  explanation: "Prepared statement memisahkan SQL dari data input, sehingga input pengguna tidak bisa dieksekusi sebagai perintah SQL."
+},
+{
+  question: "35. Apa yang terjadi jika Anda tidak memanggil commit() dalam transaksi PDO setelah menggunakan beginTransaction()?",
+  options: [
+    "Perubahan tetap disimpan",
+    "Perubahan disimpan hanya jika tidak ada error",
+    "Perubahan akan otomatis tersimpan setelah koneksi ditutup",
+    "Perubahan tidak akan disimpan karena akan di-rollback secara otomatis"
+  ],
+  correct: 3,
+  explanation: "Jika commit() tidak dipanggil, PDO akan otomatis melakukan rollback saat transaksi selesai atau terjadi error."
+},
+{
+  question: "36. Manakah pernyataan yang TIDAK benar tentang metode fetch() di PDO?",
+  options: [
+    "fetch() dapat digunakan berulang kali untuk membaca baris satu per satu",
+    "fetchAll() lebih efisien daripada fetch() dalam semua situasi",
+    "fetch() mengembalikan false jika tidak ada data lagi",
+    "fetch() dapat dikonfigurasi untuk mengembalikan array atau objek"
+  ],
+  correct: 1,
+  explanation: "fetchAll() dapat menghabiskan banyak memori untuk data besar; fetch() lebih efisien dalam loop satu per satu."
+},
+{
+  question: "37. Dalam PDO, apa perbedaan utama antara bindParam() dan bindValue()?",
+  options: [
+    "bindParam() hanya untuk INSERT, bindValue() untuk SELECT",
+    "bindValue() mengikat nilai saat pemanggilan, bindParam() mengikat referensi variabel",
+    "bindValue() lebih lambat daripada bindParam()",
+    "Keduanya tidak memiliki perbedaan"
+  ],
+  correct: 1,
+  explanation: "bindParam() mengikat variabel (referensi), sehingga nilainya dapat berubah sebelum execute(). bindValue() langsung mengikat nilainya."
+},
+{
+  question: "38. Apa efek dari mengatur atribut PDO::ATTR_ERRMODE ke PDO::ERRMODE_EXCEPTION?",
+  options: [
+    "Kesalahan SQL tidak akan terlihat di browser",
+    "Kesalahan koneksi akan dilempar sebagai Exception",
+    "Semua query harus menggunakan try-catch",
+    "Semua perintah SQL akan diabaikan jika ada error"
+  ],
+  correct: 1,
+  explanation: "Dengan mode ini, PDO akan melempar exception pada error SQL, memungkinkan penanganan error yang lebih baik."
+},
+{
+  question: "39. Manakah dari perintah berikut yang akan MENGEMBALIKAN objek PDOStatement?",
+  options: [
+    "$db->exec('DELETE FROM student WHERE nim = 1234');",
+    "$db->prepare('SELECT * FROM student');",
+    "$db->query('SELECT * FROM student');",
+    "Semua jawaban benar"
+  ],
+  correct: 2,
+  explanation: "Metode query() dan prepare() mengembalikan objek PDOStatement. exec() hanya mengembalikan jumlah baris yang terpengaruh."
+},
+{
+  question: "40. Saat menggunakan named parameter, format array yang BENAR untuk execute() adalah...",
+  options: [
+    "['nim' => '1234', 'name' => 'Ali']",
+    "[':nim' => '1234', ':name' => 'Ali']",
+    "['$nim' => '1234', '$name' => 'Ali']",
+    "['1234', 'Ali']"
+  ],
+  correct: 1,
+  explanation: "Parameter bernama di PDO tidak perlu diawali dengan ':' saat dieksekusi melalui array, hanya saat penulisan SQL-nya."
+},
+{
+  question: "41. Perintah mana yang tepat untuk mengatur agar hasil fetch() berupa objek dalam PDO?",
+  options: [
+    "$stmt->setMode(PDO::FETCH_OBJ);",
+    "$stmt->fetch(PDO::MODE_OBJ);",
+    "$stmt->fetch(PDO::FETCH_OBJ);",
+    "$db->setFetchMode(PDO::FETCH_OBJ);"
+  ],
+  correct: 2,
+  explanation: "fetch() menerima mode pengambilan seperti PDO::FETCH_OBJ untuk mengembalikan hasil sebagai objek."
+},
+{
+  question: "42. Bagaimana cara mengambil ID terakhir yang di-insert pada tabel dengan kolom auto-increment?",
+  options: [
+    "$db->getLastInsertId();",
+    "$stmt->lastID();",
+    "$db->lastInsertId();",
+    "$pdo->insertedID();"
+  ],
+  correct: 2,
+  explanation: "Method lastInsertId() dari objek PDO digunakan untuk mengambil ID terakhir yang disisipkan pada koneksi itu."
+},
+{
+  question: "43. Manakah pendekatan yang BENAR untuk melakukan transaksi database dengan aman?",
+  options: [
+    "Memanggil beginTransaction() dan langsung exec() tanpa commit()",
+    "Menggunakan try-catch, memanggil beginTransaction(), dan commit() di dalam blok try",
+    "Menggunakan exec() beberapa kali lalu rollback() tanpa beginTransaction()",
+    "Langsung menggunakan fetchAll() setelah INSERT"
+  ],
+  correct: 1,
+  explanation: "Transaksi yang aman dilakukan dalam blok try-catch dengan pemanggilan beginTransaction(), commit(), dan rollback() jika terjadi error."
+},
+  {
+    question: "44. Apa perbedaan utama antara PDO dan MySQLi dalam hal dukungan database?",
+    options: [
+      "PDO hanya mendukung MySQL, sedangkan MySQLi mendukung semua DBMS",
+      "PDO mendukung banyak jenis database, sedangkan MySQLi hanya untuk MySQL",
+      "Keduanya mendukung semua jenis database jika menggunakan driver yang tepat",
+      "MySQLi lebih cocok untuk PostgreSQL"
+    ],
+    correct: 1,
+    explanation: "PDO bersifat database-independent dan mendukung berbagai DBMS, sedangkan MySQLi hanya untuk MySQL/MariaDB."
+  },
+  {
+    question: "45. Fitur apa yang hanya tersedia di MySQLi namun tidak di PDO?",
+    options: [
+      "Prepared statement",
+      "Query builder",
+      "Multi-query execution (multi_query)",
+      "Binding parameter"
+    ],
+    correct: 2,
+    explanation: "MySQLi mendukung eksekusi beberapa query sekaligus (multi_query), fitur ini tidak tersedia di PDO."
+  },
+  {
+    question: "46. Manakah pernyataan berikut yang BENAR tentang prepared statement di MySQLi dan PDO?",
+    options: [
+      "PDO mendukung binding parameter hanya dengan tanda tanya (?)",
+      "MySQLi hanya mendukung named parameter (:param)",
+      "PDO mendukung named dan positional parameters, MySQLi hanya positional",
+      "MySQLi dan PDO keduanya mendukung named parameter"
+    ],
+    correct: 2,
+    explanation: "PDO mendukung named (`:name`) dan positional (`?`) parameter, sedangkan MySQLi hanya mendukung positional (`?`)."
+  },
+  {
+    question: "47. Dalam konteks error handling, apa keuntungan menggunakan PDO dibanding MySQLi?",
+    options: [
+      "PDO tidak pernah melempar error",
+      "PDO mendukung mode exception, MySQLi hanya mode prosedural",
+      "PDO bisa menggabungkan mode error dan exception",
+      "PDO mendukung `setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION)`"
+    ],
+    correct: 3,
+    explanation: "PDO mendukung mode error dengan exception, yang memungkinkan penanganan error yang lebih rapi dan terstruktur."
+  },
+  {
+    question: "48. Apa perbedaan utama dalam cara membuat koneksi antara PDO dan MySQLi dalam gaya berorientasi objek?",
+    options: [
+      "PDO menggunakan DSN string, MySQLi tidak",
+      "PDO harus menentukan database saat koneksi, MySQLi tidak perlu",
+      "MySQLi tidak mendukung objek koneksi",
+      "PDO dan MySQLi tidak bisa digunakan di OOP"
+    ],
+    correct: 0,
+    explanation: "PDO membutuhkan DSN (Data Source Name) dalam bentuk string, sedangkan MySQLi menggunakan parameter terpisah."
+  },
+  {
+    question: "49. Mana yang lebih mudah dipindahkan ke DBMS lain seperti PostgreSQL?",
+    options: [
+      "MySQLi",
+      "PDO",
+      "Keduanya sama",
+      "Tidak ada yang bisa dipindahkan"
+    ],
+    correct: 1,
+    explanation: "PDO mendukung banyak DBMS sehingga lebih fleksibel jika ingin migrasi ke PostgreSQL atau SQLite."
+  },
+  {
+    question: "50. Dalam performa, kapan MySQLi bisa lebih unggul dibanding PDO?",
+    options: [
+      "Saat menjalankan query INSERT tunggal",
+      "Saat menggunakan fitur khusus MySQL seperti multi_query",
+      "Saat menggunakan PostgreSQL",
+      "Saat menjalankan fetchAll()"
+    ],
+    correct: 1,
+    explanation: "MySQLi mendukung fitur-fitur spesifik MySQL yang tidak tersedia di PDO, termasuk multi_query dan store_result."
+  },
+  {
+    question: "51. Bagaimana cara menangani SQL Injection secara efektif di kedua ekstensi?",
+    options: [
+      "Menggunakan htmlentities pada input",
+      "Menggunakan addslashes() sebelum query",
+      "Selalu gunakan prepared statement dengan parameter binding",
+      "Hanya izinkan karakter alfanumerik dalam input"
+    ],
+    correct: 2,
+    explanation: "Cara paling aman adalah menggunakan prepared statements dengan binding parameter, baik di PDO maupun MySQLi."
+  },
+  {
+    question: "52. Fungsi `get_result()` di MySQLi hanya tersedia jika...",
+    options: [
+      "Menggunakan koneksi persistent",
+      "Menggunakan driver native MySQLi (mysqlnd)",
+      "Menggunakan fetchAll() di PDO",
+      "Menggunakan named parameter di MySQLi"
+    ],
+    correct: 1,
+    explanation: "`get_result()` di MySQLi hanya tersedia jika PHP menggunakan MySQL Native Driver (mysqlnd)."
+  },
+  {
+    question: "53. Dalam arsitektur aplikasi besar, kapan sebaiknya memilih PDO daripada MySQLi?",
+    options: [
+      "Ketika aplikasi hanya menggunakan fitur-fitur dasar",
+      "Ketika akan menggunakan database selain MySQL di masa depan",
+      "Ketika membutuhkan performa maksimum dari server MySQL",
+      "Ketika menggunakan style prosedural"
+    ],
+    correct: 1,
+    explanation: "PDO lebih fleksibel untuk aplikasi skala besar yang mungkin perlu mendukung berbagai DBMS di masa depan."
+  },
+  {
+    question: "54. Mengapa cookie harus dikirim menggunakan `setcookie()` sebelum output HTML apapun dikirim ke browser?",
+    options: [
+      "Karena cookie disimpan sebagai bagian dari HTML",
+      "Karena cookie dikirim melalui header HTTP",
+      "Karena cookie hanya bisa dibaca oleh JavaScript",
+      "Karena cookie membutuhkan session aktif"
+    ],
+    correct: 1,
+    explanation: "Cookie dikirim melalui header HTTP, sehingga harus ditentukan sebelum ada output (echo, HTML, dll) ke browser."
+  },
+  {
+    question: "55. Manakah pernyataan yang BENAR tentang `httponly` pada cookie?",
+    options: [
+      "Cookie tidak dikirim ke server jika `httponly` disetel",
+      "Cookie hanya bisa dibaca oleh JavaScript jika `httponly` aktif",
+      "`httponly` mencegah cookie diakses oleh JavaScript, mengurangi risiko XSS",
+      "`httponly` adalah parameter default di PHP"
+    ],
+    correct: 2,
+    explanation: "`httponly` mencegah JavaScript mengakses cookie, meningkatkan keamanan terhadap serangan XSS."
+  },
+  {
+    question: "56. Apa yang terjadi jika `session_destroy()` dipanggil, namun cookie sesi (`PHPSESSID`) tidak dihapus dari browser?",
+    options: [
+      "Sesi tetap aktif karena cookie masih ada",
+      "Server tetap mengenali data sesi lama",
+      "Server akan membuat sesi baru dengan ID yang sama",
+      "Server tidak dapat memulihkan data sesi, karena datanya telah dihapus"
+    ],
+    correct: 3,
+    explanation: "`session_destroy()` menghapus data sesi di server. Meskipun cookie sesi masih ada, data tidak dapat dipulihkan karena sudah dihapus."
+  },
+  {
+    question: "57. Apa akibat dari tidak memanggil `session_start()` sebelum menggunakan `$_SESSION`?",
+    options: [
+      "Data tetap bisa diakses karena otomatis dimuat",
+      "Sesi akan aktif tetapi tidak dikenali oleh server",
+      "PHP akan menghasilkan error atau tidak membaca data sesi",
+      "`$_SESSION` akan menjadi array kosong tetapi dapat diisi"
+    ],
+    correct: 2,
+    explanation: "Tanpa `session_start()`, PHP tidak akan memuat sesi dari ID yang dikirim klien, sehingga `$_SESSION` tidak akan berfungsi."
+  },
+  {
+    question: "58. Apa perbedaan utama antara cookie sesi dan cookie tetap (persistent)?",
+    options: [
+      "Cookie sesi dienkripsi, cookie tetap tidak",
+      "Cookie tetap disimpan di server, cookie sesi tidak",
+      "Cookie sesi hilang saat browser ditutup, cookie tetap memiliki waktu kedaluwarsa eksplisit",
+      "Tidak ada perbedaan teknis, hanya nama berbeda"
+    ],
+    correct: 2,
+    explanation: "Cookie sesi tidak memiliki waktu kedaluwarsa dan akan dihapus saat browser ditutup."
+  },
+  {
+    question: "59. Bagaimana server menghubungkan permintaan klien dengan data sesi yang benar di PHP?",
+    options: [
+      "Dengan menggunakan alamat IP",
+      "Dengan menyimpan data di cookie `$_SESSION`",
+      "Dengan membaca ID sesi yang dikirim dari cookie atau URL, lalu mencocokkannya di server",
+      "Dengan hash dari user agent dan browser"
+    ],
+    correct: 2,
+    explanation: "Server mencocokkan ID sesi dari cookie `PHPSESSID` (atau URL jika cookie tidak tersedia) dengan data yang disimpan di sisi server."
+  },
+  {
+    question: "60. Manakah dari berikut ini yang paling tepat menggambarkan risiko keamanan dari menyimpan data penting dalam cookie?",
+    options: [
+      "Data cookie tidak bisa diubah oleh klien",
+      "Cookie dienkripsi secara otomatis oleh PHP",
+      "Cookie bisa dibaca dan dimanipulasi di sisi klien",
+      "Cookie hanya bisa digunakan untuk menyimpan ID sesi"
+    ],
+    correct: 2,
+    explanation: "Cookie disimpan di sisi klien dan bisa dimanipulasi, sehingga tidak aman untuk menyimpan data sensitif secara langsung."
+  },
+  {
+    question: "61. Bagaimana cara menghapus cookie di PHP dengan benar?",
+    options: [
+      "unset($_COOKIE['nama'])",
+      "setcookie('nama', '', time() + 3600)",
+      "setcookie('nama', '', time() - 3600)",
+      "$_COOKIE['nama'] = null"
+    ],
+    correct: 2,
+    explanation: "Menghapus cookie dilakukan dengan memberi nilai kosong dan waktu kedaluwarsa di masa lalu."
+  },
+  {
+    question: "62. Apa keuntungan utama dari menyimpan data sesi di server dibanding menggunakan cookie?",
+    options: [
+      "Dapat diakses oleh JavaScript untuk efisiensi",
+      "Tidak memerlukan sesi",
+      "Lebih aman karena data tidak dikirim ke klien",
+      "Lebih cepat karena tidak melalui HTTP"
+    ],
+    correct: 2,
+    explanation: "Data sesi disimpan di server, sehingga lebih aman karena tidak dapat dimodifikasi atau diakses langsung oleh klien."
+  },
+  {
+    question: "63. Dalam praktik terbaik keamanan web, bagaimana sebaiknya mengelola ID sesi untuk menghindari session hijacking?",
+    options: [
+      "Membiarkan ID sesi di URL untuk kemudahan tracking",
+      "Menetapkan ID sesi ke cookie dan menandainya sebagai `httponly` dan `secure`",
+      "Menyimpan ID sesi di localStorage agar tidak kedaluwarsa",
+      "Mengacak ulang ID sesi setiap 5 detik"
+    ],
+    correct: 1,
+    explanation: "Menandai cookie sesi sebagai `httponly` dan `secure` mencegah akses dari JavaScript dan hanya dikirim melalui HTTPS, mengurangi risiko pencurian sesi."
+  },
+  {
+    question: "64. Apa yang terjadi jika sebuah cookie diatur tanpa parameter path, dan pengguna mengakses URL dengan path yang berbeda dari lokasi set cookie?",
+    options: [
+      "Cookie tetap terkirim karena path tidak mempengaruhi cookie",
+      "Cookie tidak akan dikirim ke path yang berbeda",
+      "Cookie hanya akan tersedia untuk root (/) jika path tidak ditentukan",
+      "Cookie tetap dikirim karena browser mengabaikan path default"
+    ],
+    correct: 2,
+    explanation: "Jika path tidak ditentukan, default-nya adalah path dari lokasi skrip yang mengatur cookie. Jika ingin cookie berlaku untuk seluruh domain, path harus diatur ke '/'."
+  },
+  {
+    question: "65. Dalam PHP, mengapa session_regenerate_id(true) penting setelah login berhasil?",
+    options: [
+      "Untuk menghindari CSRF",
+      "Untuk menyimpan data lebih lama",
+      "Untuk mencegah session fixation",
+      "Untuk menghapus cookie lama pengguna"
+    ],
+    correct: 2,
+    explanation: "Regenerasi ID sesi mencegah penyerang menggunakan session ID yang ditetapkan sebelum login (session fixation)."
+  },
+  {
+    question: "66. Apa kelemahan keamanan utama dari menyimpan ID sesi di URL (SID)?",
+    options: [
+      "Tidak dapat diakses oleh JavaScript",
+      "Mudah hilang jika pengguna logout",
+      "Mudah terlihat dan dibajak lewat referer atau log server",
+      "Tidak bekerja di browser modern"
+    ],
+    correct: 2,
+    explanation: "ID sesi di URL rentan terhadap kebocoran melalui referer, log server, clipboard, dll."
+  },
+  {
+    question: "67. Bagaimana cara PHP menangani $_SESSION ketika sesi tidak ditemukan (misalnya ID tidak valid)?",
+    options: [
+      "PHP melempar exception",
+      "PHP membuat sesi baru secara otomatis",
+      "PHP mengembalikan null",
+      "PHP menghapus semua variabel global"
+    ],
+    correct: 1,
+    explanation: "Jika ID sesi tidak valid, PHP akan membuat sesi baru saat session_start() dipanggil."
+  },
+  {
+    question: "68. Apa efek dari menambahkan parameter secure saat membuat cookie di PHP?",
+    options: [
+      "Cookie hanya akan tersedia di session saat browser terbuka",
+      "Cookie hanya dikirim melalui koneksi HTTPS",
+      "Cookie akan dienkripsi secara otomatis",
+      "Cookie tidak dapat dibaca di server"
+    ],
+    correct: 1,
+    explanation: "Parameter secure memastikan cookie hanya dikirim melalui koneksi HTTPS, bukan HTTP biasa."
+  },
+  {
+    question: "69. Manakah skenario berikut yang paling aman untuk login berbasis session di PHP?",
+    options: [
+      "Menyimpan seluruh data pengguna dalam cookie terenkripsi",
+      "Menggunakan ID sesi yang ditaruh di URL dan cookie",
+      "Menyimpan ID sesi di cookie dengan httponly, secure, dan meregenerasi ID setelah login",
+      "Menyimpan ID user dalam URL setelah login berhasil"
+    ],
+    correct: 2,
+    explanation: "Ini praktik terbaik: cookie hanya untuk server (httponly), hanya HTTPS (secure), dan regenerasi ID untuk mencegah session fixation."
+  },
+  {
+    question: "70. Jika kamu memanggil session_destroy() tetapi tidak melakukan unset() pada $_SESSION, apa konsekuensinya?",
+    options: [
+      "Sesi benar-benar hilang dan data tidak dapat diakses",
+      "Data masih dapat diakses sampai reload halaman",
+      "Session cookie akan hilang juga",
+      "PHP akan otomatis menghapus semua variabel"
+    ],
+    correct: 1,
+    explanation: "session_destroy() menghapus file sesi di server, tapi $_SESSION masih tersedia di runtime sampai skrip berakhir atau unset() dipanggil."
+  },
+  {
+    question: "71. Apa yang terjadi jika kita memanggil setcookie() dua kali dengan nama dan path yang sama tapi nilai berbeda dalam satu skrip?",
+    options: [
+      "Keduanya disimpan dan dikirim bergantian",
+      "Cookie pertama ditimpa oleh cookie kedua",
+      "PHP akan error karena konflik",
+      "Browser akan menyimpan dua versi cookie"
+    ],
+    correct: 1,
+    explanation: "Jika nama dan path sama, cookie yang dikirim terakhir akan menggantikan sebelumnya."
+  },
+  {
+    question: "72. Jika pengguna memblokir semua cookie di browser, apa dampaknya pada sesi PHP?",
+    options: [
+      "session_start() tetap berfungsi normal",
+      "PHP akan secara otomatis mengalihkan ke ID sesi dalam URL",
+      "Session tidak akan berfungsi kecuali ditambahkan ke URL manual",
+      "Data sesi akan disimpan dalam cookie lokal saja"
+    ],
+    correct: 2,
+    explanation: "Jika cookie diblokir, server tidak bisa menghubungkan kembali ke sesi kecuali ID sesi disertakan di URL (trans SID harus aktif)."
+  },
+  {
+    question: "73. Manakah dari berikut ini yang TIDAK BENAR tentang perbedaan Cookie dan Session?",
+    options: [
+      "Cookie disimpan di browser, session disimpan di server",
+      "Cookie bisa dibaca dan dimodifikasi pengguna, session tidak",
+      "Session lebih cocok untuk menyimpan preferensi pengguna jangka panjang",
+      "Cookie memiliki batas ukuran data, session tidak secara praktis dibatasi"
+    ],
+    correct: 2,
+    explanation: "Preferensi pengguna jangka panjang lebih cocok disimpan dalam cookie, karena session akan hilang saat masa aktifnya habis atau pengguna logout."
+  },
+  {
+    question: "74. Dalam arsitektur MVC, komponen manakah yang sebaiknya tidak mengetahui keberadaan komponen lainnya?",
+    options: [
+      "Model",
+      "View",
+      "Controller",
+      "Router"
+    ],
+    correct: 0,
+    explanation: "Model tidak boleh mengetahui Controller atau View. Ia hanya menangani logika bisnis dan data."
+  },
+  {
+    question: "75. Pada implementasi MVC, kapan sebaiknya Controller memanggil metode Model?",
+    options: [
+      "Saat menerima data dari View atau pengguna",
+      "Saat menampilkan halaman",
+      "Saat memuat template HTML",
+      "Saat menyambung ke database"
+    ],
+    correct: 0,
+    explanation: "Controller bertugas menerima input pengguna dari View, lalu memprosesnya melalui Model."
+  },
+  {
+    question: "76. Apa fungsi utama dari file index.php dalam framework MVC sederhana di PHP?",
+    options: [
+      "Sebagai template utama halaman web",
+      "Untuk menyimpan koneksi database",
+      "Sebagai titik masuk dan router aplikasi",
+      "Untuk memuat semua file View"
+    ],
+    correct: 2,
+    explanation: "index.php adalah entry point utama yang mengarahkan permintaan ke Controller dan Method yang sesuai."
+  },
+  {
+    question: "77. File manakah yang biasanya tidak mengandung class dalam struktur folder MVC?",
+    options: [
+      "controller/Post.class.php",
+      "model/PostModel.class.php",
+      "view/posts.php",
+      "Controller.class.php"
+    ],
+    correct: 2,
+    explanation: "File dalam folder `view/` biasanya hanya berupa HTML/PHP untuk tampilan dan tidak berisi class."
+  },
+  {
+    question: "78. Dalam MVC, apa tujuan dari fungsi loadView() di dalam Controller?",
+    options: [
+      "Untuk menyimpan data ke database",
+      "Untuk mengambil data dari Model",
+      "Untuk me-render tampilan (View) tertentu dengan data",
+      "Untuk memvalidasi input pengguna"
+    ],
+    correct: 2,
+    explanation: "loadView() dipakai Controller untuk me-render halaman View dengan data yang relevan."
+  },
+  {
+    question: "79. Apa keuntungan utama menggunakan arsitektur MVC saat membangun aplikasi web?",
+    options: [
+      "Menyederhanakan koneksi database",
+      "Menghindari penggunaan HTML dan CSS",
+      "Memisahkan logika bisnis dari tampilan",
+      "Menyimpan semua kode di satu tempat"
+    ],
+    correct: 2,
+    explanation: "MVC memisahkan logika bisnis (Model), antarmuka pengguna (View), dan alur kontrol (Controller)."
+  },
+  {
+    question: "80. Dalam struktur MVC sederhana, method store() dalam Controller biasanya digunakan untuk?",
+    options: [
+      "Menampilkan daftar data",
+      "Memproses input formulir untuk membuat data baru",
+      "Menghapus data berdasarkan ID",
+      "Mengedit data dalam View"
+    ],
+    correct: 1,
+    explanation: "Method store() umum digunakan untuk memproses dan menyimpan data baru yang dikirim dari View."
+  },
+  {
+    question: "81. Komponen View dalam MVC sebaiknya menerima data dari?",
+    options: [
+      "Langsung dari database",
+      "Model tanpa melalui Controller",
+      "Controller",
+      "Router"
+    ],
+    correct: 2,
+    explanation: "Dalam pola MVC, View menerima data dari Controller, bukan langsung dari Model."
+  },
+  {
+    question: "82. Dalam alur kerja MVC, kapan View biasanya dipanggil?",
+    options: [
+      "Sebelum Controller dijalankan",
+      "Setelah Controller memproses dan mengambil data",
+      "Saat Model diinisialisasi",
+      "Saat koneksi database dibuka"
+    ],
+    correct: 1,
+    explanation: "View dipanggil setelah Controller memproses data dari Model dan siap untuk ditampilkan."
+  },
+  {
+    question: "83. Mengapa penting memisahkan folder controller/, model/, dan view/ dalam framework PHP sederhana?",
+    options: [
+      "Agar bisa diakses langsung oleh pengguna",
+      "Agar setiap file punya ekstensi berbeda",
+      "Untuk menjaga struktur kode agar modular dan mudah dipelihara",
+      "Agar framework bisa otomatis memuat semua file"
+    ],
+    correct: 2,
+    explanation: "Memisahkan folder berdasarkan fungsinya membuat aplikasi lebih terstruktur dan mudah dikembangkan."
+  },
+  {
+    question: "84. Dalam framework MVC PHP sederhana, bagaimana Controller mengetahui model mana yang harus dipanggil?",
+    options: [
+      "Dari nama file HTML yang dibuka",
+      "Melalui URL parameter seperti ?c=post&m=store",
+      "Dengan membaca isi database",
+      "Secara otomatis berdasarkan isi cookie"
+    ],
+    correct: 1,
+    explanation: "Routing sederhana biasanya dilakukan melalui parameter URL yang menentukan Controller dan Method."
+  }
+];
+
+const container = document.getElementById("quiz-container");
+
+// Generate soal ke halaman
+quizData.forEach((q, i) => {
+  const qDiv = document.createElement("div");
+  qDiv.classList.add("question");
+  qDiv.innerHTML = `
+    <p>${q.question}</p>
+    ${q.options.map((opt, idx) => `
+      <label><input type="radio" name="q${i}" value="${idx}"> ${String.fromCharCode(65 + idx)}. ${opt}</label><br>
+    `).join("")}
+    <div class="explanation" id="exp${i}"></div>
+  `;
+  container.appendChild(qDiv);
+});
+
+// Fungsi pengecekan jawaban yang diperbaiki
+function checkAnswers() {
+  let score = 0;
+  quizData.forEach((q, i) => {
+    const radios = document.getElementsByName(`q${i}`);
+    const expDiv = document.getElementById(`exp${i}`);
+    let userAnswer = -1;
+
+    radios.forEach((r) => {
+      if (r.checked) userAnswer = parseInt(r.value);
+    });
+
+    // Reset warna
+    radios.forEach((r) => {
+      r.parentElement.style.color = "black";
+    });
+
+    // Warnai jawaban benar dan salah
+    radios.forEach((r) => {
+      const val = parseInt(r.value);
+      if (val === q.correct) {
+        r.parentElement.style.color = "green";
+      } else if (val === userAnswer) {
+        r.parentElement.style.color = "red";
+      }
+    });
+
+    if (userAnswer === q.correct) {
+      score++;
+    }
+
+    // Pastikan penjelasan muncul
+    if (expDiv) { // Tambahkan pengecekan ini untuk memastikan elemen ada
+      expDiv.style.display = "block";
+      expDiv.innerHTML = `<strong>Penjelasan:</strong> ${q.explanation}`;
+    }
+  });
+
+  document.getElementById("result").innerText = `Skor Anda: ${score} dari ${quizData.length}`;
+}
+</script>
+
+</body>
+</html>

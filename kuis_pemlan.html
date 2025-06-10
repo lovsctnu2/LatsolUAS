@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Latsol Pemlan</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      color: #333;
+    }
+    .quiz-section {
+      margin-bottom: 40px;
+    }
+    .question {
+      background-color: #fff;
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 4px solid #007BFF;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .explanation {
+      margin-top: 10px;
+      padding: 8px;
+      background-color: #e9ecef;
+      font-size: 14px;
+      display: none;
+      border-left: 3px solid #17a2b8;
+    }
+  </style>
+</head>
+<body>
+
+<h1>SEMANGAT UAS PEMLAN YEAH, btw cmiiw yg buat gpt bukan nabi</h1>
+
+<div id="quiz-container"></div>
+<button onclick="checkAnswers()">Submit Jawaban</button>
+<p id="result"></p>
+
+<script>
+const quizData = [
+  {
+    question: "1. Sebuah tim pengembang sedang merancang sistem manajemen tugas yang sangat dinamis. Kebutuhan utamanya adalah kemampuan untuk sering menambahkan tugas baru di awal daftar prioritas dan menghapus tugas yang sudah selesai dari awal daftar, dengan efisiensi waktu konstan. Jika tim memutuskan untuk mengimplementasikan fungsionalitas ini sebagai sebuah ADT, struktur data internal Java yang paling tepat untuk mendukung kinerja O(1) pada kedua operasi tersebut (penambahan dan penghapusan di awal) dan mengapa?",
+    options: [
+      "ArrayList, karena menyediakan akses indeks O(1) sehingga penambahan/penghapusan cepat.",
+      "java.util.Stack, karena sifat LIFO-nya sangat sesuai untuk penambahan dan penghapusan di satu ujung.",
+      "java.util.ArrayDeque, karena ini adalah implementasi Deque berbasis array sirkular yang sangat efisien untuk operasi di kedua ujung.",
+      "java.util.LinkedList, karena setiap node memiliki pointer prev dan next, memungkinkan addFirst() dan removeFirst() secara efisien.",
+      "java.util.PriorityQueue, karena secara otomatis mengatur prioritas tugas sehingga yang terpenting selalu di depan."
+    ],
+    correct: 3,
+    explanation: "java.util.LinkedList adalah implementasi nyata dari Double Linked List di Java. Double Linked List secara intrinsik memungkinkan penambahan (addFirst()) dan penghapusan (removeFirst()) di awal daftar dengan kompleksitas waktu O(1) karena hanya perlu memodifikasi beberapa pointer head dan prev/next dari node yang terlibat. ArrayList memiliki O(n) untuk operasi ini. ArrayDeque efisien (O(1)) tapi LinkedList lebih sesuai dengan narasi ADT Linked List yang dijelaskan materi. PriorityQueue bukan untuk posisi awal melainkan prioritas."
+  },
+  {
+    question: "2. Pertimbangkan sebuah ADT UndoRedoStack yang mendukung operasi undo() dan redo(). ADT ini memiliki karakteristik bahwa operasi undo() akan mengembalikan state sebelumnya dan redo() akan mengembalikan state setelahnya. Jika implementasi UndoRedoStack memanfaatkan dua Stack internal: undoStack dan redoStack, bagaimana implementasi operasi undo() akan mempengaruhi kedua stack tersebut untuk memastikan fungsionalitas yang benar?",
+    options: [
+      "Pop elemen dari undoStack dan push ke redoStack.",
+      "Pop elemen dari redoStack dan push ke undoStack.",
+      "Pop elemen dari undoStack dan langsung menghapusnya tanpa push ke redoStack.",
+      "Push elemen ke undoStack dan pop dari redoStack.",
+      "Tidak ada perubahan pada stack; hanya mengambil nilai teratas dari undoStack."
+    ],
+    correct: 0,
+    explanation: "Operasi undo() berarti kembali ke state sebelumnya. State yang sekarang (yang akan di-undo) berada di atas undoStack. Setelah di-undo, state tersebut menjadi kandidat untuk redo(). Oleh karena itu, elemen teratas dari undoStack harus di-pop() dan kemudian di-push() ke redoStack."
+  },
+  {
+    question: "3. Dalam konteks implementasi ADT List menggunakan SingleLinkedList, terdapat dua skenario umum untuk operasi add dan remove: Skenario 1: add menggunakan addLast() dan remove menggunakan removeFirst(). Skenario 2: add menggunakan addFirst() dan remove menggunakan removeLast(). Manakah skenario yang **sangat tidak disarankan** untuk SingleLinkedList jika ditinjau dari efisiensi kompleksitas waktu, dan mengapa?",
+    options: [
+      "Skenario 1, karena addLast() pada SingleLinkedList memerlukan traversal O(n).",
+      "Skenario 2, karena removeLast() pada SingleLinkedList memerlukan traversal O(n) untuk menemukan node sebelumnya.",
+      "Skenario 1 dan 2 sama-sama tidak efisien karena SingleLinkedList selalu O(n) untuk setiap operasi.",
+      "Skenario 2, karena addFirst() pada SingleLinkedList memiliki overhead memori yang tinggi.",
+      "Kedua skenario sama-sama efisien karena SingleLinkedList adalah struktur data dinamis."
+    ],
+    correct: 1,
+    explanation: "Pada SingleLinkedList, addFirst() adalah O(1). Namun, removeLast() memerlukan traversal O(n) untuk menemukan node kedua terakhir agar bisa mengatur pointer 'next' ke NULL, menjadikannya operasi yang sangat tidak efisien. Skenario 1 lebih dapat ditoleransi karena addLast() bisa O(1) dengan tail pointer."
+  },
+  {
+    question: "4. Sebuah antarmuka Java didefinisikan sebagai berikut: `interface MyADT { void operationA(); boolean operationB(int value); }` Kemudian, sebuah kelas `MyImplementation` mengimplementasikan `MyADT`. Ketika Anda menggunakan `MyADT obj = new MyImplementation();`, Anda sedang menerapkan prinsip kunci ADT. Apa prinsip utama yang paling ditekankan oleh penggunaan `interface` dan `implementation` dalam konteks ADT?",
+    options: [
+      "Data Encapsulation, karena detail implementasi disembunyikan.",
+      "Information Hiding, karena pengguna tidak perlu tahu bagaimana metode diimplementasikan.",
+      "Separation of Interface and Implementation, karena definisi perilaku (interface) terpisah dari detail cara kerja (implementation).",
+      "Polymorphism, karena obj bisa menunjuk ke berbagai implementasi MyADT.",
+      "Inheritance, karena MyImplementation mewarisi perilaku dari MyADT."
+    ],
+    correct: 2,
+    explanation: "Penggunaan `interface` dan kelas `implementation` secara langsung menekankan pemisahan yang jelas antara apa yang dilakukan ADT (antarmuka/kontrak) dan bagaimana itu dilakukan (implementasi). Ini adalah prinsip inti ADT."
+  },
+  {
+    question: "5. Manajer proyek Anda meminta Anda merancang sebuah sistem antrean tiket acara konser. Tiket harus dijual berdasarkan urutan kedatangan pelanggan. Namun, ada juga kategori 'VIP' yang, setelah di-enqueue, harus selalu dilayani sebelum pelanggan reguler, meskipun mereka datang belakangan. Dari ADT yang telah Anda pelajari, kombinasi manakah yang paling efektif untuk memodelkan sistem ini?",
+    options: [
+      "Murni Queue (FIFO) dengan logika pengecekan VIP manual di luar ADT.",
+      "Stack (LIFO) untuk mengelola pelanggan reguler dan Queue terpisah untuk VIP.",
+      "PriorityQueue yang memprioritaskan pelanggan VIP di atas reguler.",
+      "LinkedList dengan operasi addFirst() untuk VIP dan addLast() untuk reguler, lalu removeFirst().",
+      "Array statis yang diurutkan ulang setiap kali pelanggan baru datang."
+    ],
+    correct: 2,
+    explanation: "PriorityQueue adalah ADT yang dirancang khusus untuk memproses elemen berdasarkan prioritas. Dengan Comparator kustom atau objek Comparable, ia akan secara otomatis mengeluarkan elemen (tiket VIP) dengan prioritas tertinggi terlebih dahulu, sesuai kebutuhan sistem."
+  },
+  {
+    question: "6. Sebuah perusahaan logistik ingin mengoptimalkan rute pengiriman paket. Mereka memiliki daftar paket yang harus dikirim, dan setiap paket memiliki tingkat urgensi yang berbeda. Mereka ingin selalu memproses paket dengan urgensi tertinggi terlebih dahulu. Jika mereka menggunakan `java.util.LinkedList` sebagai dasar implementasi ADT untuk daftar paket ini, metode `LinkedList` mana yang secara intrinsik **tidak akan digunakan** untuk operasi `poll()` atau `dequeue()` yang berorientasi prioritas, dan mengapa?",
+    options: [
+      "removeFirst(), karena hanya mengambil elemen pertama, bukan yang paling prioritas.",
+      "removeLast(), karena akan memakan waktu O(N) untuk LinkedList dan tidak terkait prioritas.",
+      "peekFirst(), karena hanya melihat dan tidak menghapus elemen.",
+      "get(index), karena akses acak di LinkedList memiliki kompleksitas O(N).",
+      "Semua jawaban di atas benar."
+    ],
+    correct: 4,
+    explanation: "Tidak ada metode bawaan `LinkedList` yang secara intrinsik mengelola prioritas. `LinkedList` adalah struktur data sekuensial (FIFO/LIFO jika digunakan sebagai Queue/Stack). Semua metode yang disebutkan (removeFirst, removeLast, peekFirst, get) tidak mempertimbangkan prioritas, melainkan posisi atau akses, sehingga tidak akan digunakan untuk operasi dequeue berorientasi prioritas."
+  },
+  {
+    question: "7. Misalkan Anda merancang sebuah sistem manajemen memori sederhana menggunakan Linked List. Anda perlu sering mengalokasikan (menambah) blok memori baru di bagian belakang daftar blok memori yang tersedia, dan sering mendealokasikan (menghapus) blok memori yang paling tidak baru digunakan dari bagian depan daftar. Kebutuhan lain adalah kemampuan untuk sesekali melakukan iterasi mundur dari akhir daftar untuk keperluan *debugging*. Struktur Linked List manakah yang paling optimal untuk kombinasi kebutuhan ini?",
+    options: [
+      "Single Linked List karena sederhana dan efisien untuk addLast() dan removeFirst().",
+      "Double Linked List karena memungkinkan addLast() dan removeFirst() yang efisien, serta traversal mundur.",
+      "Circular Linked List karena bisa melakukan loop tanpa henti.",
+      "Array karena akses indeksnya cepat.",
+      "Stack karena hanya beroperasi di satu ujung."
+    ],
+    correct: 1,
+    explanation: "Double Linked List menawarkan O(1) untuk `addLast()` dan `removeFirst()` karena adanya pointer `head` dan `tail`. Yang terpenting, keberadaan pointer `prev` pada setiap node memungkinkan traversal mundur yang efisien, memenuhi semua kebutuhan yang disebutkan."
+  },
+  {
+    question: "8. Sebuah ADT StringQueue didefinisikan sebagai sebuah antrean yang hanya dapat menyimpan objek String. Salah satu persyaratan implementasinya adalah bahwa metode `enqueue` harus seefisien mungkin (O(1)), dan metode `dequeue` juga harus seefisien mungkin (O(1)). Jika implementasi internal StringQueue menggunakan array dinamis seperti ArrayList, mengapa `ArrayDeque` seringkali dianggap sebagai pilihan yang lebih baik daripada implementasi `ArrayList` yang dimodifikasi untuk fungsi Queue standar, terutama terkait efisiensi pergeseran elemen?",
+    options: [
+      "ArrayDeque memiliki kapasitas yang lebih besar secara default.",
+      "ArrayDeque secara otomatis mengurutkan elemen setelah setiap operasi.",
+      "ArrayDeque menggunakan konsep circular buffer sehingga dequeue tidak memerlukan pergeseran elemen.",
+      "ArrayDeque adalah thread-safe, sementara ArrayList tidak.",
+      "ArrayDeque hanya dapat menyimpan tipe data primitif, sehingga lebih cepat."
+    ],
+    correct: 2,
+    explanation: "ArrayDeque dirancang menggunakan konsep *circular buffer* (array sirkular). Ini memungkinkan operasi `dequeue` (pengambilan dari depan) dilakukan dalam O(1) karena hanya perlu memindahkan indeks `head`, tanpa perlu menggeser seluruh elemen, seperti yang terjadi pada `ArrayList` saat menghapus dari awal."
+  },
+  {
+    question: "9. Dalam konteks `java.util.Queue` ADT, perbedaan perilaku antara metode `offer(E e)` dan `add(E e)` ketika Queue berada pada kapasitas penuh (misalnya, pada `ArrayBlockingQueue` yang memiliki batas kapasitas) adalah demonstrasi penting dari desain API yang berorientasi keamanan dan penanganan kesalahan. Apa perbedaan utama antara kedua metode ini dalam skenario kapasitas penuh?",
+    options: [
+      "offer() melempar IllegalStateException, sedangkan add() mengembalikan false.",
+      "offer() mengembalikan true atau false, sedangkan add() melempar IllegalStateException.",
+      "offer() menunggu hingga ada ruang, sedangkan add() melempar NoSuchElementException.",
+      "offer() menghapus elemen terlama secara otomatis, sedangkan add() menambahkan di akhir.",
+      "Tidak ada perbedaan perilaku; keduanya sama saja."
+    ],
+    correct: 1,
+    explanation: "`offer(E e)` adalah metode 'aman' yang mengembalikan `false` jika elemen tidak dapat ditambahkan (misal, antrean penuh), tanpa melempar pengecualian. Sebaliknya, `add(E e)` akan melempar `IllegalStateException` jika antrean penuh, mengindikasikan kegagalan."
+  },
+  {
+    question: "10. Sebuah organisasi ingin menyimpan daftar pengunjung VIP mereka. Daftar ini harus mendukung penambahan pengunjung baru dan penghapusan pengunjung yang telah pergi. Selain itu, mereka ingin dapat dengan cepat mencari apakah seorang pengunjung tertentu ada dalam daftar. Mereka juga memiliki persyaratan tambahan bahwa urutan pengunjung dalam daftar harus dapat dibalik (reverse traversal) dengan efisiensi yang masuk akal. Berdasarkan konsep ADT dan struktur data Java, kombinasi karakteristik manakah yang paling **tidak efisien** untuk diimplementasikan secara bersamaan jika mereka memilih `Single Linked List`?",
+    options: [
+      "Penambahan di awal (O(1)) dan pencarian (O(n)).",
+      "Penghapusan di awal (O(1)) dan penambahan di akhir (O(n) jika tanpa tail pointer).",
+      "Pencarian (O(n)) dan pembalikan urutan (reverse traversal O(n) melalui iterasi maju lalu menyimpan di stack/array).",
+      "Penambahan di akhir (O(n) jika tanpa tail pointer) dan penghapusan di akhir (O(n)).",
+      "Penghapusan di akhir (O(n)) dan traversal mundur (tidak efisien/tidak mungkin langsung O(n))."
+    ],
+    correct: 4,
+    explanation: "Penghapusan di akhir (`removeLast()`) pada `Single Linked List` memerlukan traversal O(n) karena harus mencari node kedua terakhir. Lebih krusial, `Single Linked List` secara intrinsik tidak mendukung traversal mundur secara efisien (atau langsung), karena tidak ada pointer 'prev'. Kombinasi ini adalah yang paling tidak efisien untuk SLL dibandingkan dengan Double Linked List."
+  },
+  {
+    question: "11. Anda sedang merancang sebuah parser ekspresi matematika yang menggunakan postfix notation (Reverse Polish Notation). Untuk mengevaluasi ekspresi ini, Anda membutuhkan sebuah struktur data yang dapat menyimpan operand sementara dan menerapkan operasi pada operand terakhir yang ditempatkan. ADT dan implementasi Java mana yang paling tepat untuk kebutuhan ini, dan mengapa?",
+    options: [
+      "Queue menggunakan `java.util.LinkedList`, karena FIFO memungkinkan operand diambil sesuai urutan operasi.",
+      "Stack menggunakan `java.util.ArrayDeque`, karena LIFO cocok untuk memproses operand terakhir yang dimasukkan.",
+      "PriorityQueue, karena operand dapat diprioritaskan berdasarkan nilainya untuk evaluasi.",
+      "LinkedList secara umum, karena fleksibel untuk penambahan dan penghapusan di mana saja.",
+      "Array, karena akses elemennya cepat dengan indeks."
+    ],
+    correct: 1,
+    explanation: "Evaluasi ekspresi postfix (RPN) secara fundamental membutuhkan perilaku LIFO. Operand ditempatkan di Stack, dan ketika operator ditemukan, dua operand teratas di-pop, dioperasikan, dan hasilnya di-push kembali. `java.util.ArrayDeque` adalah implementasi Stack yang direkomendasikan di Java karena efisiensi O(1) dan tidak ada overhead sinkronisasi seperti `java.util.Stack` (yang berbasis `Vector`)."
+  },
+  {
+    question: "12. Sebuah sistem *buffer* data real-time dirancang untuk menerima aliran data dari sensor. Data harus diproses dalam urutan persis yang diterima, dan sistem perlu memastikan bahwa data yang masuk tidak hilang jika *buffer* mencapai kapasitas maksimum, tetapi juga harus bisa menghapus data tertua untuk memberi ruang bagi data baru secara otomatis. ADT dan karakteristik perilaku mana yang paling sesuai untuk memodelkan *buffer* ini?",
+    options: [
+      "Stack (LIFO) dengan kapasitas terbatas, karena data terakhir yang masuk adalah yang pertama keluar.",
+      "Queue (FIFO) dengan kemampuan 'dropping' elemen tertua ketika penuh, karena data pertama masuk adalah yang pertama keluar.",
+      "PriorityQueue, karena memungkinkan data sensor dengan prioritas tertentu diproses lebih dulu.",
+      "Deque, karena memungkinkan penambahan dan penghapusan dari kedua ujung.",
+      "Array statis dengan indeks putar, mirip dengan implementasi *circular buffer*."
+    ],
+    correct: 1,
+    explanation: "Kebutuhan 'data harus diproses dalam urutan persis yang diterima' mengindikasikan FIFO (Queue). Kemampuan 'menghapus data tertua untuk memberi ruang bagi data baru secara otomatis' saat penuh adalah karakteristik umum dari *circular buffer* yang sering digunakan untuk Queue berkapasitas terbatas, di mana elemen tertua secara implisit akan 'jatuh' jika ditimpa oleh elemen baru. Ini secara semantik adalah perilaku Queue."
+  },
+  {
+    question: "13. Anda diminta untuk mengimplementasikan fungsionalitas 'Undo' dalam editor teks sederhana. Setiap kali pengguna mengetik karakter, operasi tersebut harus disimpan. Ketika 'Undo' dipanggil, karakter terakhir yang diketik harus dihapus. Struktur data mana yang secara konseptual paling cocok untuk menyimpan riwayat operasi ini, dan mengapa `java.util.Stack` mungkin bukan pilihan pertama dalam implementasi modern Java meskipun namanya cocok?",
+    options: [
+      "`java.util.LinkedList` karena efisien untuk penambahan dan penghapusan di awal.",
+      "`java.util.ArrayDeque` karena perilaku LIFO yang efisien tanpa overhead sinkronisasi.",
+      "`java.util.Stack` karena memang dinamai 'Stack' dan memiliki metode `push/pop`.",
+      "`java.util.PriorityQueue` karena operasi 'Undo' dapat diprioritaskan.",
+      "Array biasa, lalu menggeser elemen saat 'Undo'."
+    ],
+    correct: 1,
+    explanation: "Fungsionalitas Undo secara klasik adalah aplikasi LIFO (Last-In, First-Out): operasi terakhir yang dilakukan adalah operasi pertama yang di-undo. Oleh karena itu, Stack adalah ADT yang tepat. Meskipun `java.util.Stack` ada, ia berbasis `Vector` (array dinamis yang `thread-safe`), yang berarti memiliki overhead sinkronisasi dan potensi performa sedikit lebih rendah untuk operasi tunggal dibandingkan `java.util.ArrayDeque` yang tidak `thread-safe` dan dirancang khusus untuk kinerja sebagai Stack (atau Queue)."
+  },
+  {
+    question: "14. Pertimbangkan sebuah skenario di mana Anda perlu memproses tugas-tugas dalam sebuah antrean, tetapi kadang-kadang ada tugas 'darurat' yang harus segera disisipkan ke depan antrean (sebelum semua tugas yang ada). Struktur data Queue standar (FIFO) tidak dapat menangani ini secara langsung. Metode atau jenis ADT mana yang paling tepat untuk mengatasi kebutuhan ini secara efisien?",
+    options: [
+      "Menggunakan dua `java.util.LinkedList`: satu untuk tugas reguler (FIFO) dan satu untuk tugas darurat (disisipkan di `addFirst()`).",
+      "Menggunakan `java.util.ArrayDeque` dan menerapkan logika manual untuk mencari posisi sisipan tugas darurat.",
+      "Menggunakan `java.util.PriorityQueue` dengan mendefinisikan prioritas untuk tugas darurat dan reguler.",
+      "Menggunakan `java.util.Stack` untuk tugas darurat dan `java.util.Queue` untuk tugas reguler.",
+      "Memodifikasi implementasi `Queue` standar untuk mendukung metode `enqueueFront()`."
+    ],
+    correct: 2,
+    explanation: "Kebutuhan untuk memproses elemen berdasarkan 'urgensi' atau 'prioritas' adalah deskripsi klasik untuk `PriorityQueue`. Dengan `PriorityQueue`, Anda dapat mendefinisikan kriteria prioritas (misalnya, tugas darurat memiliki prioritas lebih tinggi daripada tugas reguler), dan `poll()` akan selalu mengembalikan elemen dengan prioritas tertinggi, secara efisien (O(log n))."
+  },
+  {
+    question: "15. Sebuah antrean diimplementasikan menggunakan `Single Linked List`. Untuk mencapai kinerja O(1) untuk operasi `enqueue` (menambah elemen) dan `dequeue` (menghapus elemen), bagaimana pointer `head` dan `tail` pada `Single Linked List` tersebut harus dikelola, dan apa yang akan terjadi jika pengelolaan ini salah?",
+    options: [
+      "`enqueue` menggunakan `addFirst()` (mengubah `head`), `dequeue` menggunakan `removeLast()` (mengubah `tail`); ini akan menjaga FIFO.",
+      "`enqueue` menggunakan `addLast()` (mengubah `tail`), `dequeue` menggunakan `removeFirst()` (mengubah `head`); ini akan menjaga FIFO dan kinerja O(1).",
+      "`enqueue` menggunakan `addFirst()` (mengubah `head`), `dequeue` menggunakan `removeFirst()` (mengubah `head`); ini akan menjaga LIFO, bukan FIFO.",
+      "Tidak diperlukan pointer `tail`, cukup `head`; kinerja selalu O(1).",
+      "Baik `enqueue` maupun `dequeue` harus selalu mengubah `head` dan `tail` secara bersamaan."
+    ],
+    correct: 1,
+    explanation: "Untuk Queue (FIFO) yang efisien dengan `Single Linked List`: `enqueue` harus menambahkan di akhir (`addLast()`), yang memerlukan pointer `tail` untuk O(1). `dequeue` harus menghapus dari awal (`removeFirst()`), yang hanya melibatkan pointer `head` untuk O(1). Jika `enqueue` pakai `addFirst()` dan `dequeue` pakai `removeLast()`, itu akan menghasilkan LIFO pada Single Linked List, dan `removeLast()` pada Single Linked List adalah O(n) karena perlu traversal ke node sebelumnya."
+  },
+  {
+    question: "16. Perusahaan ingin mengembangkan fitur 'Riwayat Penjelajahan' di aplikasi mereka. Riwayat ini harus menampilkan halaman yang terakhir dikunjungi, dan memungkinkan pengguna untuk kembali ke halaman sebelumnya secara berurutan. Namun, ada batasan memori, sehingga riwayat hanya boleh menyimpan 100 halaman terakhir. Struktur data gabungan mana yang paling efisien untuk memenuhi kebutuhan ini?",
+    options: [
+      "`java.util.ArrayList` dengan pemotongan ukuran manual untuk 100 elemen terakhir.",
+      "`java.util.Stack` berkapasitas 100, di mana halaman baru di-`push` dan `pop` untuk 'kembali'.",
+      "`java.util.ArrayDeque` berkapasitas 100, berfungsi sebagai `Stack` untuk navigasi 'mundur'.",
+      "`java.util.LinkedList` dengan `addLast()` untuk halaman baru dan `removeFirst()` jika ukuran melebihi 100.",
+      "`java.util.ConcurrentLinkedQueue` untuk memastikan *thread safety* riwayat."
+    ],
+    correct: 2,
+    explanation: "Riwayat penjelajahan dengan 'kembali ke halaman sebelumnya' secara berurutan adalah perilaku LIFO (Stack). Batasan 100 halaman menunjukkan kebutuhan akan struktur berkapasitas terbatas. `java.util.ArrayDeque` adalah pilihan terbaik karena mengimplementasikan `Deque` (yang bisa bertindak sebagai Stack) dengan efisiensi O(1) untuk operasi `push` (`addLast()`) dan `pop` (`removeLast()`) serta memiliki kapasitas terbatas tanpa overhead sinkronisasi `java.util.Stack`."
+  },
+  {
+    question: "17. Pertimbangkan sebuah algoritma Breadth-First Search (BFS) pada graf. Algoritma ini menjelajahi semua tetangga pada level yang sama sebelum beralih ke level berikutnya. Untuk mencapai perilaku ini, node-node yang akan dikunjungi disimpan dalam sebuah struktur data. ADT mana yang secara fundamental diperlukan untuk implementasi BFS yang benar?",
+    options: [
+      "Stack, untuk menyimpan node-node yang belum dikunjungi dan menjelajahi yang terakhir ditambahkan.",
+      "Queue, untuk menyimpan node-node yang belum dikunjungi dan menjelajahi yang pertama ditambahkan.",
+      "PriorityQueue, untuk menjelajahi node dengan prioritas terendah terlebih dahulu.",
+      "List, untuk menyimpan node-node dalam urutan apa pun.",
+      "Set, untuk menghindari kunjungan node yang sama berulang kali."
+    ],
+    correct: 1,
+    explanation: "BFS adalah algoritma penjelajahan level-by-level. Untuk memastikan node pada level yang sama dikunjungi sebelum pindah ke level berikutnya, node yang baru ditemukan harus ditambahkan ke belakang antrean dan diproses dari depan antrean. Ini adalah prinsip FIFO, yang merupakan karakteristik Queue. Set digunakan untuk melacak node yang sudah dikunjungi, bukan sebagai struktur traversal utama."
+  },
+  {
+    question: "18. Sebuah perangkat lunak simulasi memerlukan antrean kejadian (event queue) di mana kejadian dengan waktu kejadian terendah harus diproses terlebih dahulu, terlepas dari kapan kejadian tersebut ditambahkan ke antrean. Metode `offer()` dan `poll()` dari antarmuka `Queue` akan digunakan. Implementasi `java.util.Queue` manakah yang paling cocok untuk skenario ini dan mengapa?",
+    options: [
+      "`java.util.LinkedList`, karena efisien untuk `offer()` dan `poll()` secara umum.",
+      "`java.util.ArrayDeque`, karena kinerja O(1) untuk operasi ujung.",
+      "`java.util.PriorityQueue`, karena secara alami mengurutkan elemen berdasarkan prioritas (waktu kejadian).",
+      "`java.util.Stack`, karena memungkinkan akses cepat ke elemen teratas.",
+      "Sebuah array biasa yang diurutkan ulang setelah setiap penambahan."
+    ],
+    correct: 2,
+    explanation: "Kebutuhan untuk memproses 'kejadian dengan waktu kejadian terendah terlebih dahulu' secara eksplisit menunjuk pada konsep prioritas. `java.util.PriorityQueue` adalah implementasi `Queue` yang mengelola elemen berdasarkan urutan alami mereka (jika `Comparable`) atau berdasarkan `Comparator` yang disediakan, memastikan bahwa `poll()` selalu mengembalikan elemen dengan prioritas tertinggi (dalam kasus ini, waktu kejadian terendah)."
+  },
+  {
+    question: "19. Diberikan skenario di mana data perlu dimasukkan dan dihapus secara berulang dari satu ujung (seperti Stack) DAN ada kebutuhan untuk memeriksa elemen teratas tanpa menghapusnya, serta memverifikasi apakah struktur data tersebut kosong. Kelas `java.util.Stack` di Java SDK, meskipun namanya cocok, memiliki beberapa kelemahan yang membuatnya kurang direkomendasikan untuk aplikasi modern dibandingkan alternatif lain. Apa kelemahan utama `java.util.Stack` dibandingkan dengan `java.util.ArrayDeque` untuk kasus ini?",
+    options: [
+      "java.util.Stack tidak mendukung operasi `peek()`.",
+      "java.util.Stack menggunakan Linked List internal yang lebih lambat daripada array.",
+      "java.util.Stack adalah `thread-safe` (berbasis `Vector`), yang menyebabkan overhead kinerja yang tidak perlu jika tidak dalam lingkungan multi-threaded.",
+      "java.util.Stack tidak mengimplementasikan antarmuka `Queue`.",
+      "java.util.Stack tidak dapat menyimpan tipe data primitif."
+    ],
+    correct: 2,
+    explanation: "`java.util.Stack` adalah subclass dari `java.util.Vector`, yang merupakan kelas lama yang `thread-safe` secara default. Properti `thread-safe` ini memperkenalkan overhead sinkronisasi untuk setiap operasi (`push`, `pop`, `peek`) meskipun dalam lingkungan *single-threaded*, yang tidak diperlukan dan dapat mengurangi kinerja dibandingkan `java.util.ArrayDeque` yang tidak `thread-safe` secara default dan dioptimalkan untuk kinerja."
+  },
+  {
+    question: "20. Dalam implementasi Queue menggunakan array konvensional (bukan *circular buffer*), operasi `dequeue` seringkali menjadi bottleneck performa. Mengapa demikian, dan bagaimana `ArrayDeque` mengatasi masalah ini?",
+    options: [
+      "Dequeue pada array konvensional memerlukan penggeseran semua elemen ke kiri (O(n)), sedangkan `ArrayDeque` menggunakan `LinkedList` internal untuk menghindari ini.",
+      "Dequeue pada array konvensional memerlukan penggeseran semua elemen ke kiri (O(n)), sedangkan `ArrayDeque` menggunakan *circular buffer* yang hanya memindahkan indeks `head` (O(1)).",
+      "Dequeue pada array konvensional menyebabkan *ArrayIndexOutOfBoundsException*, sedangkan `ArrayDeque` menangani itu secara otomatis.",
+      "Dequeue pada array konvensional hanya bisa menghapus elemen terakhir, sedangkan `ArrayDeque` bisa menghapus dari depan.",
+      "Dequeue pada array konvensional efisien (O(1)), masalahnya ada pada `enqueue`."
+    ],
+    correct: 1,
+    explanation: "Pada implementasi Queue menggunakan array konvensional, ketika elemen dihapus dari depan (`dequeue`), semua elemen yang tersisa harus digeser satu posisi ke kiri untuk mengisi kekosongan, yang menghasilkan kompleksitas waktu O(n). `ArrayDeque` mengatasi ini dengan menggunakan struktur *circular buffer*, di mana operasi `dequeue` hanya melibatkan pembaruan pointer `head` dan tidak ada penggeseran elemen fisik, sehingga mencapai kompleksitas O(1)."
+  },
+  {
+    question: "21. Anda sedang merancang sebuah sistem manajemen tugas real-time di mana setiap tugas memiliki 'batas waktu kritis' (critical_deadline). Tugas dengan `critical_deadline` paling awal harus diproses terlebih dahulu. Jika dua tugas memiliki `critical_deadline` yang sama, tugas dengan ID tugas yang lebih kecil harus diproses terlebih dahulu. Bagaimana Anda akan menginisialisasi `PriorityQueue<Task>` untuk memenuhi persyaratan ini, dengan asumsi kelas `Task` memiliki `int id` dan `long critical_deadline`?",
+    options: [
+      "new PriorityQueue<>(); (meminta `Task` mengimplementasikan `Comparable<Task>` berdasarkan ID)",
+      "new PriorityQueue<>(Comparator.comparingLong(Task::getCriticalDeadline));",
+      "new PriorityQueue<>(Comparator.comparingLong(Task::getCriticalDeadline).thenComparingInt(Task::getId));",
+      "new PriorityQueue<>(Collections.reverseOrder()); (meminta `Task` mengimplementasikan `Comparable<Task>` berdasarkan `critical_deadline` secara terbalik)",
+      "new PriorityQueue<>((t1, t2) -> Long.compare(t2.getCriticalDeadline(), t1.getCriticalDeadline()));"
+    ],
+    correct: 2,
+    explanation: "Kebutuhan utama adalah `critical_deadline` paling awal (prioritas lebih tinggi untuk nilai `long` yang lebih kecil), diikuti oleh ID tugas yang lebih kecil (prioritas lebih tinggi untuk nilai `int` yang lebih kecil) jika `critical_deadline` sama. `Comparator.comparingLong(Task::getCriticalDeadline)` akan mengurutkan berdasarkan deadline secara menaik (yang lebih kecil diutamakan). `thenComparingInt(Task::getId)` akan menambahkan kriteria kedua, mengurutkan berdasarkan ID secara menaik (yang lebih kecil diutamakan) jika deadline sama. Pilihan lain tidak memenuhi kedua kriteria pengurutan prioritas secara berjenjang."
+  },
+  {
+    question: "22. Sebuah `PriorityQueue<String>` diinisialisasi dengan `new PriorityQueue<>(Collections.reverseOrder());`. Kemudian, string berikut ditambahkan secara berurutan: 'apple', 'zebra', 'banana', 'cat', 'dog'. Apa yang akan dikembalikan oleh pemanggilan `pq.poll()` pertama dan mengapa?",
+    options: [
+      "'apple', karena ini adalah default Min-Heap.",
+      "'zebra', karena Comparator membalikkan urutan alami, menjadikan string terakhir secara alfabetis memiliki prioritas tertinggi.",
+      "'banana', karena ini adalah elemen pertama yang ditambahkan setelah 'apple'.",
+      "'dog', karena `PriorityQueue` tidak menjamin urutan selain elemen teratas.",
+      "Urutan tidak dapat diprediksi karena string tidak memiliki urutan alami."
+    ],
+    correct: 1,
+    explanation: "`Collections.reverseOrder()` membuat `PriorityQueue` bertindak seperti Max-Heap untuk tipe data yang mengimplementasikan `Comparable`. Untuk `String`, urutan alami adalah alfabetis menaik. Membalikkan urutan alami berarti string yang secara alfabetis 'lebih besar' akan memiliki prioritas lebih tinggi. Dari 'apple', 'zebra', 'banana', 'cat', 'dog', 'zebra' adalah yang terbesar secara alfabetis, sehingga akan menjadi elemen pertama yang di-`poll()`."
+  },
+  {
+    question: "23. Anda sedang melakukan debugging pada sebuah `PriorityQueue<Integer>` yang digunakan sebagai Min-Heap default. Anda menambahkan beberapa elemen dan kemudian ingin memeriksa apakah elemen tertentu (misalnya, angka 7) ada di dalam antrean tanpa mengubah urutan prioritas atau mengeluarkan elemen. Metode mana yang paling tepat untuk digunakan, dan bagaimana kompleksitas waktu operasinya?",
+    options: [
+      "`pq.peek()`, O(1), karena hanya melihat elemen teratas.",
+      "`pq.poll()`, O(log n), lalu tambahkan kembali jika bukan 7.",
+      "`pq.contains(7)`, O(n), karena mungkin memerlukan traversal seluruh heap.",
+      "`pq.element()`, O(1), dan kemudian memeriksa nilainya.",
+      "Tidak ada metode langsung; harus mengiterasi secara manual dari elemen teratas hingga menemukan 7."
+    ],
+    correct: 2,
+    explanation: "Untuk memeriksa keberadaan elemen tertentu dalam `PriorityQueue`, metode `contains(Object o)` adalah yang paling tepat. Meskipun `PriorityQueue` diimplementasikan dengan heap, struktur heap tidak menjamin urutan elemen di seluruh array, sehingga `contains()` mungkin perlu menelusuri semua elemen untuk menemukan yang cocok. Ini menjadikannya operasi O(n) dalam kasus terburuk. Metode lain seperti `peek()` dan `element()` hanya melihat elemen teratas (O(1)), dan `poll()` akan menghapus elemen."
+  },
+  {
+    question: "24. Sebuah sistem simulasi memodelkan pendaratan pesawat. Setiap pesawat memiliki waktu kedatangan dan waktu pendaratan yang diprediksi. Pesawat dengan waktu pendaratan diprediksi paling awal harus diprioritaskan. Jika dua pesawat memiliki waktu pendaratan yang sama, pesawat dengan waktu kedatangan terlama (menunggu paling lama) harus diprioritaskan. Manakah implementasi `compareTo()` atau `Comparator` yang paling akurat untuk objek `Pesawat` (dengan `long waktuKedatangan`, `long waktuPendaratanDiprediksi`) dalam sebuah `PriorityQueue` yang bertindak sebagai Min-Heap?",
+    options: [
+      "`return Long.compare(this.waktuPendaratanDiprediksi, other.waktuPendaratanDiprediksi);`",
+      "`return Long.compare(other.waktuPendaratanDiprediksi, this.waktuPendaratanDiprediksi);`",
+      "```java\nreturn Long.compare(this.waktuPendaratanDiprediksi, other.waktuPendaratanDiprediksi) == 0 ? \n       Long.compare(other.waktuKedatangan, this.waktuKedatangan) : \n       Long.compare(this.waktuPendaratanDiprediksi, other.waktuPendaratanDiprediksi);\n```",
+      "```java\nreturn Long.compare(this.waktuPendaratanDiprediksi, other.waktuPendaratanDiprediksi) != 0 ? \n       Long.compare(this.waktuPendaratanDiprediksi, other.waktuPendaratanDiprediksi) : \n       Long.compare(other.waktuKedatangan, this.waktuKedatangan);\n```",
+      "Tidak mungkin memprioritaskan dengan dua kriteria dalam satu `PriorityQueue`."
+    ],
+    correct: 3,
+    explanation: "Kriteria pertama adalah `waktuPendaratanDiprediksi` paling awal (nilai terkecil = prioritas tertinggi), yang berarti `Long.compare(this.waktuPendaratanDiprediksi, other.waktuPendaratanDiprediksi)`. Jika ini sama (`== 0`), maka kriteria kedua adalah `waktuKedatangan` terlama (nilai terbesar = prioritas tertinggi), yang berarti `Long.compare(other.waktuKedatangan, this.waktuKedatangan)` (membalikkan urutan alami agar yang lebih besar menjadi prioritas). Pilihan D menggabungkan kedua kriteria dengan benar menggunakan operator ternary atau kondisional, di mana prioritas pertama diutamakan, dan jika setara, prioritas kedua yang menentukan."
+  },
+  {
+    question: "25. Sebuah algoritma graf seperti Dijkstra's atau Prim's Algorithm seringkali menggunakan `PriorityQueue` untuk secara efisien memilih node/edge berikutnya yang memiliki 'bobot' atau 'jarak' terendah. Mengapa penggunaan `PriorityQueue` lebih efisien daripada menggunakan `LinkedList` atau `ArrayList` biasa untuk menyimpan node/edge yang belum diproses dalam algoritma tersebut, terutama jika jumlah node/edge sangat besar?",
+    options: [
+      "Karena `PriorityQueue` memungkinkan akses acak O(1) ke elemen mana pun, sedangkan Linked/ArrayList tidak.",
+      "Karena `PriorityQueue` secara otomatis menghapus elemen duplikat, sedangkan Linked/ArrayList tidak.",
+      "Karena `PriorityQueue` menyediakan operasi `poll()` dan `offer()` dengan kompleksitas waktu O(log n), jauh lebih baik daripada mencari elemen minimum di Linked/ArrayList yang O(n).",
+      "Karena `PriorityQueue` bersifat `thread-safe` secara default, menjamin keamanan dalam lingkungan multi-threaded.",
+      "Karena `PriorityQueue` menyimpan elemen dalam urutan yang sepenuhnya terurut, sehingga pengambilan minimum selalu O(1)."
+    ],
+    correct: 2,
+    explanation: "Dalam algoritma seperti Dijkstra atau Prim, Anda secara berulang perlu mencari dan mengambil elemen (node/edge) dengan bobot/jarak minimum dari kumpulan yang belum diproses. Jika menggunakan `LinkedList` atau `ArrayList`, mencari elemen minimum akan memerlukan iterasi melalui seluruh daftar (O(n)) pada setiap langkah. Sebaliknya, `PriorityQueue` (berbasis heap) menjamin bahwa operasi `poll()` (mengambil minimum) dan `offer()` (menambah) memiliki kompleksitas waktu O(log n), yang jauh lebih efisien untuk dataset besar."
+  },
+  {
+    question: "26. Diberikan sebuah Binary Tree yang tidak kosong. Jika kita melakukan traversa Pre-order dan mendapatkan urutan `A, B, D, E, C, F, G`, dan traversa In-order mendapatkan urutan `D, B, E, A, F, C, G`, manakah pernyataan yang **pasti** benar mengenai struktur Binary Tree tersebut?",
+    options: [
+      "Node 'A' adalah root dan 'B' adalah anak kiri dari 'A', 'C' adalah anak kanan dari 'A'.",
+      "Node 'F' adalah anak kiri dari 'C' dan 'G' adalah anak kanan dari 'C'.",
+      "Node 'D' dan 'E' adalah saudara kandung, dan 'B' adalah parent mereka.",
+      "Semua pernyataan di atas benar dan konsisten dengan kedua traversa.",
+      "Informasi traversa tidak cukup untuk menentukan struktur Tree secara unik."
+    ],
+    correct: 3,
+    explanation: "Dari Pre-order (`A, B, D, E, C, F, G`), kita tahu 'A' adalah root. Dari In-order (`D, B, E, A, F, C, G`), semua elemen sebelum 'A' (yaitu `D, B, E`) adalah subtree kiri 'A', dan semua elemen setelah 'A' (yaitu `F, C, G`) adalah subtree kanan 'A'. Dengan rekursif menerapkan logika ini: untuk subtree kiri, Pre-order `B, D, E` dan In-order `D, B, E` berarti 'B' adalah root subtree kiri, 'D' anak kiri 'B', 'E' anak kanan 'B'. Untuk subtree kanan, Pre-order `C, F, G` dan In-order `F, C, G` berarti 'C' adalah root subtree kanan, 'F' anak kiri 'C', 'G' anak kanan 'C'. Semua opsi A, B, dan C sesuai dengan rekonstruksi Tree ini."
+  },
+  {
+    question: "27. Sebuah `Binary Search Tree (BST)` dibangun dengan menyisipkan elemen-elemen berikut secara berurutan: `50, 30, 70, 20, 40, 60, 80`. Setelah proses penyisipan, apa yang akan menjadi tinggi (height) dari BST tersebut?",
+    options: [
+      "0",
+      "1",
+      "2",
+      "3",
+      "Tidak dapat ditentukan tanpa menggambar Tree."
+    ],
+    correct: 2,
+    explanation: "Mari kita bangun BST-nya:\n- 50 (Root, Level 0)\n- 30 (Kiri 50, Level 1)\n- 70 (Kanan 50, Level 1)\n- 20 (Kiri 30, Level 2)\n- 40 (Kanan 30, Level 2)\n- 60 (Kiri 70, Level 2)\n- 80 (Kanan 70, Level 2)\nSemua daun (20, 40, 60, 80) berada di Level 2. Tinggi Tree didefinisikan sebagai tinggi dari root, yaitu jumlah edge pada jalur terpanjang dari root ke daun. Dalam kasus ini, jalur terpanjang memiliki 2 edge (misalnya 50 -> 30 -> 20). Jadi, tinggi Tree adalah 2."
+  },
+  {
+    question: "28. Jika sebuah Tree memiliki 15 node dan merupakan *strictly binary tree* (setiap node internal memiliki tepat dua anak), berapakah jumlah leaf node yang dimilikinya?",
+    options: [
+      "6",
+      "7",
+      "8",
+      "9",
+      "Tidak dapat ditentukan."
+    ],
+    correct: 2,
+    explanation: "Dalam *strictly binary tree* (juga dikenal sebagai *full binary tree*), setiap node internal memiliki tepat dua anak, dan semua leaf node berada pada level yang sama. Untuk *strictly binary tree*, terdapat hubungan $N = 2L - 1$, di mana $N$ adalah total jumlah node dan $L$ adalah jumlah leaf node. Jika $N = 15$, maka $15 = 2L - 1$. Ini berarti $16 = 2L$, sehingga $L = 8$. Jadi, ada 8 leaf node."
+  },
+  {
+    question: "29. Anda sedang mempertimbangkan implementasi sistem file sederhana yang merepresentasikan direktori dan file dalam struktur Tree. Operasi yang paling sering dilakukan adalah mencari file berdasarkan path absolutnya (misalnya, `/home/user/documents/report.pdf`) dan membuat direktori baru atau menghapus file/direktori yang ada. Mengapa struktur `Tree` (khususnya *General Tree* yang memungkinkan lebih dari 2 anak per node) lebih cocok daripada `Binary Tree` untuk representasi ini?",
+    options: [
+      "Binary Tree lebih lambat untuk pencarian file dengan path panjang dibandingkan General Tree.",
+      "General Tree lebih efisien memori karena tidak memerlukan pointer anak kanan/kiri yang mungkin kosong seperti Binary Tree.",
+      "General Tree secara alami merepresentasikan hierarki file/direktori dengan jumlah sub-direktori/file yang bervariasi pada setiap level, sedangkan Binary Tree membatasi hanya dua anak.",
+      "Binary Tree tidak mendukung operasi penambahan/penghapusan node secara dinamis, sementara General Tree mendukung.",
+      "General Tree adalah satu-satunya tipe Tree yang mendukung traversa pre-order dan post-order secara efisien."
+    ],
+    correct: 2,
+    explanation: "Sistem file adalah contoh klasik dari struktur hierarkis di mana sebuah direktori (node) dapat memiliki banyak sub-direktori dan file (anak) yang jumlahnya tidak terbatas pada dua. `General Tree` dirancang untuk menangani node dengan jumlah anak yang bervariasi, sementara `Binary Tree` secara ketat membatasi hingga dua anak (kiri dan kanan). Menggunakan `Binary Tree` untuk sistem file akan memerlukan konversi yang tidak alami atau implementasi yang rumit (misalnya, 'first child, next sibling' representation) untuk memodelkan banyak anak, yang tidak seefisien atau seintuitif `General Tree`."
+  },
+  {
+    question: "30. Sebuah Binary Tree memiliki tinggi (height) `h`. Berapakah jumlah minimum node yang mungkin ada dalam Tree tersebut?",
+    options: [
+      "`h + 1`",
+      "`2^h`",
+      "`2^(h+1) - 1`",
+      "`h * 2`",
+      "`2h + 1`"
+    ],
+    correct: 0,
+    explanation: "Jumlah minimum node dalam sebuah Binary Tree dengan tinggi `h` terjadi ketika Tree tersebut adalah *skewed tree* (condong sepenuhnya ke satu sisi, baik kiri atau kanan), di mana setiap node (kecuali daun) hanya memiliki satu anak. Dalam skenario ini, jalur dari root ke daun terpanjang akan berisi `h` edge dan `h + 1` node. Contoh: jika `h=2`, Tree bisa berupa A -> B -> C, dengan 3 node (2+1)."
+  },
+  {
+    question: "31. Diberikan sebuah Tree dengan 5 node (A, B, C, D, E) di mana A adalah root, B dan C adalah anak dari A, D adalah anak dari B, dan E adalah anak dari C. Berapakah 'degree of the tree' ini?",
+    options: [
+      "0",
+      "1",
+      "2",
+      "3",
+      "Tidak dapat ditentukan."
+    ],
+    correct: 2,
+    explanation: "'Degree of a Tree' didefinisikan sebagai derajat maksimum di antara semua node dalam Tree. \n- Derajat A = 2 (memiliki anak B dan C)\n- Derajat B = 1 (memiliki anak D)\n- Derajat C = 1 (memiliki anak E)\n- Derajat D = 0 (leaf node)\n- Derajat E = 0 (leaf node)\nDerajat maksimum di antara semua node adalah 2. Jadi, 'degree of the tree' adalah 2."
+  },
+  {
+    question: "32. Dalam konteks Binary Tree, apa perbedaan mendasar antara 'Complete Binary Tree' dan 'Full Binary Tree'?",
+    options: [
+      "Complete Binary Tree memiliki semua node pada level terakhir yang terisi dari kiri ke kanan, sedangkan Full Binary Tree memiliki setiap node internal dengan dua anak.",
+      "Complete Binary Tree memiliki setiap node internal dengan dua anak, sedangkan Full Binary Tree memiliki semua node pada level terakhir yang terisi dari kiri ke kanan.",
+      "Complete Binary Tree adalah Balanced Binary Tree, sedangkan Full Binary Tree tidak selalu.",
+      "Full Binary Tree memiliki daun yang semuanya pada level yang sama, sedangkan Complete Binary Tree tidak.",
+      "Tidak ada perbedaan; keduanya adalah istilah yang sama."
+    ],
+    correct: 0,
+    explanation: "A 'Full Binary Tree' (atau *strictly binary tree*) adalah Tree di mana setiap node internal memiliki tepat dua anak. Sebuah 'Complete Binary Tree' adalah Full Binary Tree hingga level terakhir, dan semua daun pada level terakhir diisi dari kiri ke kanan. Jadi, poin utamanya adalah pengisian level terakhir dari kiri ke kanan untuk Complete Binary Tree, dan memiliki tepat dua anak untuk setiap internal node pada Full Binary Tree."
+  },
+  {
+    question: "33. Mengapa operasi pencarian pada `Binary Search Tree (BST)` yang tidak seimbang (skewed) memiliki kompleksitas waktu yang berbeda secara signifikan dibandingkan dengan BST yang seimbang (balanced), dan bagaimana hal ini memengaruhi efisiensi secara keseluruhan?",
+    options: [
+      "BST yang tidak seimbang memiliki kompleksitas pencarian O(log n), sedangkan yang seimbang adalah O(n).",
+      "BST yang tidak seimbang degenerasi menjadi seperti Linked List, membuat pencarian menjadi O(n) dalam kasus terburuk, berbeda dengan O(log n) pada BST seimbang.",
+      "BST yang tidak seimbang memerlukan traversal tambahan untuk menyeimbangkan ulang, memperlambat pencarian.",
+      "Efisiensi pencarian tidak terpengaruh oleh keseimbangan Tree; selalu O(log n).",
+      "BST yang seimbang tidak pernah digunakan dalam praktik karena terlalu kompleks."
+    ],
+    correct: 1,
+    explanation: "Ketika sebuah BST menjadi sangat tidak seimbang (misalnya, semua elemen disisipkan dalam urutan menaik atau menurun), ia degenerasi menjadi seperti sebuah `Linked List`. Dalam kondisi ini, mencari elemen akan memerlukan penelusuran dari root hingga daun di sepanjang 'jalur' tunggal tersebut, menghasilkan kompleksitas waktu O(n) dalam kasus terburuk, mirip dengan pencarian linear pada Linked List. Berbeda dengan BST yang seimbang (misalnya AVL Tree atau Red-Black Tree), di mana tinggi Tree dijaga agar tetap minimum (sekitar log n), sehingga pencarian selalu mendekati O(log n)."
+  },
+  {
+    question: "34. Dalam sebuah Binary Tree, jika sebuah node X memiliki anak kiri Y dan anak kanan Z, dan node Z adalah leaf node, maka apa yang bisa kita simpulkan tentang tinggi (height) dari subtree yang berakar pada Z?",
+    options: [
+      "Tinggi subtree Z adalah 1.",
+      "Tinggi subtree Z adalah 0.",
+      "Tinggi subtree Z sama dengan tinggi subtree Y.",
+      "Tinggi subtree Z adalah -1 (tidak valid).",
+      "Tinggi subtree Z tidak dapat ditentukan tanpa informasi lebih lanjut."
+    ],
+    correct: 1,
+    explanation: "Definisi 'Leaf Node' adalah node yang tidak memiliki child sama sekali. Tinggi (Height) sebuah node didefinisikan sebagai jumlah edge pada jalur terpanjang dari node tersebut ke leaf node terendah di subtree-nya. Karena leaf node tidak memiliki anak, jalur terpanjang dari leaf node ke dirinya sendiri adalah 0 edge. Oleh karena itu, tinggi leaf node selalu 0."
+  },
+  {
+    question: "35. Manakah dari pernyataan berikut yang paling akurat menjelaskan mengapa struktur data Tree (terutama Binary Search Tree) seringkali lebih disukai daripada `ArrayList` atau `LinkedList` untuk implementasi kamus (dictionary) di mana operasi penambahan, penghapusan, dan pencarian sering dilakukan?",
+    options: [
+      "`ArrayList` dan `LinkedList` tidak dapat menyimpan data secara hierarkis.",
+      "Operasi pencarian, penambahan, dan penghapusan pada `ArrayList` atau `LinkedList` selalu O(n) dalam kasus terburuk, sedangkan pada BST yang seimbang bisa O(log n).",
+      "`ArrayList` dan `LinkedList` tidak mendukung pengurutan otomatis data.",
+      "Tree menggunakan memori lebih sedikit dibandingkan `ArrayList` atau `LinkedList`.",
+      "Tree adalah satu-satunya struktur data yang mendukung traversal."
+    ],
+    correct: 1,
+    explanation: "Untuk kamus yang dinamis (sering ada penambahan, penghapusan, pencarian), `ArrayList` memerlukan O(n) untuk pencarian (linear search) dan O(n) untuk penambahan/penghapusan di tengah (pergeseran elemen). `LinkedList` memerlukan O(n) untuk pencarian dan O(n) untuk penghapusan di tengah (setelah ditemukan). Sebaliknya, pada `Binary Search Tree` yang seimbang, operasi pencarian, penambahan, dan penghapusan dapat dilakukan dalam O(log n) waktu rata-rata dan kasus terburuk, yang jauh lebih efisien untuk jumlah data yang besar."
+  },
+  {
+    question: "36. Diberikan sebuah Binary Tree yang tidak kosong. Jika kita memiliki urutan traversa Post-order (`D, E, B, F, G, C, A`) dan In-order (`D, B, E, A, F, C, G`), manakah node yang merupakan 'grandparent' dari node 'D'?",
+    options: [
+      "A",
+      "B",
+      "C",
+      "E",
+      "Tidak ada grandparent untuk D."
+    ],
+    correct: 0,
+    explanation: "Dari Post-order (`D, E, B, F, G, C, A`), kita tahu 'A' adalah root terakhir yang diproses. Dari In-order (`D, B, E, A, F, C, G`), semua elemen sebelum 'A' (`D, B, E`) adalah subtree kiri, dan setelah 'A' (`F, C, G`) adalah subtree kanan. Menggunakan Post-order `D, E, B`, 'B' adalah root subtree kiri, dengan 'D' dan 'E' sebagai anaknya. Karena 'D' adalah anak dari 'B', dan 'B' adalah anak dari 'A', maka 'A' adalah grandparent dari 'D'."
+  },
+  {
+    question: "37. Sebuah `Binary Search Tree (BST)` dibangun dengan menyisipkan elemen-elemen secara berurutan. Urutan penyisipan elemen sangat memengaruhi tinggi BST. Urutan penyisipan manakah dari set elemen yang sama (`10, 20, 30, 40, 50`) yang akan menghasilkan BST dengan tinggi **tertinggi**?",
+    options: [
+      "`30, 20, 40, 10, 50`",
+      "`30, 10, 50, 20, 40`",
+      "`10, 20, 30, 40, 50`",
+      "`40, 20, 50, 10, 30`",
+      "`20, 40, 10, 50, 30`"
+    ],
+    correct: 2,
+    explanation: "Tinggi BST akan tertinggi (degenerasi menjadi seperti Linked List) jika elemen disisipkan dalam urutan yang sudah terurut (baik menaik atau menurun). Dalam kasus ini, `10, 20, 30, 40, 50` akan menghasilkan BST yang condong ke kanan (skewed), dengan 10 sebagai root, 20 anak kanan 10, 30 anak kanan 20, dan seterusnya. Tinggi Tree akan menjadi N-1 (jumlah node - 1), yang merupakan tinggi maksimum yang mungkin untuk N node, mirip dengan panjang sebuah Linked List. Opsi lain akan menghasilkan Tree yang lebih seimbang atau setidaknya tidak sepenuhnya condong."
+  },
+  {
+    question: "38. Jika sebuah `Binary Tree` memiliki `N` node, berapakah kompleksitas waktu terbaik (best-case) untuk operasi `find(data)` pada `Binary Search Tree (BST)` yang implementasinya tidak menjamin keseimbangan?",
+    options: [
+      "O(1)",
+      "O(log n)",
+      "O(n)",
+      "O(n log n)",
+      "O(n^2)"
+    ],
+    correct: 0,
+    explanation: "Dalam kasus terbaik, elemen yang dicari adalah root Tree. Jika elemen yang dicari adalah root, maka hanya perlu satu perbandingan untuk menemukannya, sehingga kompleksitasnya O(1). Namun, perlu dicatat bahwa kompleksitas rata-rata dan terburuk untuk BST yang tidak seimbang adalah O(log n) dan O(n) secara berurutan."
+  },
+  {
+    question: "39. Anda memiliki sebuah koleksi data yang sangat besar dan ingin menyimpannya sedemikian rupa sehingga: 1) data terurut secara alami, 2) dapat melakukan pencarian, penambahan, dan penghapusan dengan cepat (idealnya O(log n)), dan 3) dapat melakukan iterasi elemen dalam urutan terurut. Struktur data internal Java Collections Framework manakah yang secara spesifik menggunakan konsep Tree (Binary Search Tree yang seimbang) untuk mencapai tujuan ini?",
+    options: [
+      "`java.util.ArrayList`",
+      "`java.util.LinkedList`",
+      "`java.util.TreeSet`",
+      "`java.util.HashMap`",
+      "`java.util.Stack`"
+    ],
+    correct: 2,
+    explanation: "`java.util.TreeSet` adalah implementasi dari antarmuka `SortedSet` di Java Collections Framework. Secara internal, `TreeSet` menggunakan `TreeMap` (yang berbasis Red-Black Tree, jenis Binary Search Tree yang secara otomatis menjaga keseimbangan) untuk menyimpan elemen. Ini memungkinkan `TreeSet` untuk menyimpan elemen dalam urutan terurut dan menyediakan operasi pencarian, penambahan, dan penghapusan dalam waktu O(log n)."
+  },
+  {
+    question: "40. Perhatikan pseudocode untuk Level-Order Traversal berikut: \n1. Buat Queue kosong (misalnya Q).\n2. Masukkan (enqueue) node root ke Q.\n3. Ulangi selama Q tidak kosong:\n   a. Ambil dan hapus (dequeue) sebuah node dari Q dan kunjungi (proses) node tersebut.\n   b. Jika child kiri dari node yang baru diambil ada, masukkan (enqueue) child kiri tersebut ke Q.\n   c. Jika child kanan dari node yang baru diambil ada, masukkan (enqueue) child kanan tersebut ke Q.\n\nMengapa penggunaan `Queue` esensial untuk Level-Order Traversal, sementara untuk Pre-order, In-order, dan Post-order Traversal dapat diimplementasikan secara rekursif tanpa `Queue` eksplisit?",
+    options: [
+      "Queue diperlukan untuk memastikan bahwa elemen dengan prioritas tertinggi diproses terlebih dahulu.",
+      "Queue adalah satu-satunya cara untuk melacak node yang telah dikunjungi dalam urutan tertentu.",
+      "Level-Order Traversal membutuhkan pemrosesan node level demi level, dan `Queue` (FIFO) secara alami mempertahankan urutan node yang ditemukan di level yang sama sebelum beralih ke level berikutnya.",
+      "Recursive traversal lebih efisien untuk Level-Order Traversal, tetapi `Queue` digunakan untuk kesederhanaan.",
+      "Queue digunakan untuk menghindari *Stack Overflow* saat Tree sangat dalam."
+    ],
+    correct: 2,
+    explanation: "Level-Order Traversal memerlukan pemrosesan node 'level demi level', dari kiri ke kanan pada setiap level. Struktur `Queue` (First-In, First-Out - FIFO) secara inheren cocok untuk ini: ketika sebuah node dikunjungi, anak-anaknya segera dimasukkan ke belakang antrean. Ini memastikan bahwa semua node pada level saat ini diproses sepenuhnya sebelum node-node dari level berikutnya (yang telah di-enqueue di belakang) mulai diproses."
+  },
+  {
+    question: "41. Diberikan struktur `Node` sebagai berikut: \n```java\nclass Node<T> {\n    T data;\n    Node<T> left;\n    Node<T> right;\n    public Node(T data) { this.data = data; }\n}\n```\nJika Anda ingin mengimplementasikan metode `delete(T data)` pada `Binary Search Tree` yang memiliki kasus kompleks (misalnya, node yang akan dihapus memiliki dua anak), mengapa proses penghapusan melibatkan pencarian 'inorder successor' atau 'inorder predecessor'?",
+    options: [
+      "Untuk menjaga Tree tetap seimbang setelah penghapusan.",
+      "Karena node yang dihapus harus selalu diganti dengan daun untuk mempertahankan properti BST.",
+      "Untuk mempertahankan properti BST (nilai di subtree kiri < parent < nilai di subtree kanan) dengan mengganti node yang dihapus dengan node yang tepat dari salah satu subtreenya.",
+      "Agar operasi penghapusan selalu memiliki kompleksitas waktu O(1).",
+      "Agar dapat melakukan traversal secara efisien setelah penghapusan."
+    ],
+    correct: 2,
+    explanation: "Ketika sebuah node dengan dua anak dihapus dari BST, node tersebut harus diganti dengan nilai dari 'inorder successor' (elemen terkecil di subtree kanan) atau 'inorder predecessor' (elemen terbesar di subtree kiri). Ini dilakukan untuk memastikan bahwa properti kunci BST tetap terjaga: semua nilai di subtree kiri pengganti lebih kecil dari pengganti, dan semua nilai di subtree kanan pengganti lebih besar dari pengganti. Setelah nilai diganti, node `successor` atau `predecessor` yang asli (yang sekarang menjadi daun atau memiliki satu anak) dapat dengan mudah dihapus."
+  },
+  {
+    question: "42. Pertimbangkan sebuah `Binary Tree` dengan N node. Jika semua node dalam Tree berada pada satu jalur lurus (misalnya, Tree yang sangat condong ke kiri atau kanan), berapakah *height* dari Tree tersebut?",
+    options: [
+      "0",
+      "1",
+      "log N",
+      "N - 1",
+      "N"
+    ],
+    correct: 3,
+    explanation: "Jika semua node dalam Binary Tree berada pada satu jalur lurus (seperti Linked List), ini dikenal sebagai *skewed tree* atau *degenerate tree*. Dalam kasus ini, jalur terpanjang dari root ke daun akan melibatkan setiap node dalam Tree (kecuali root itu sendiri). Oleh karena itu, jumlah edge pada jalur terpanjang adalah `N - 1`, yang juga merupakan tinggi Tree. Contoh: N=3 (A->B->C), tinggi 2 (3-1)."
+  },
+  {
+    question: "43. Dalam ilustrasi Binary Tree yang diberikan di materi (`A` root, `B,C` anak `A`, `D,E` anak `B`, `F,G` anak `C`), node manakah yang merupakan 'sibling' dari node yang merupakan 'parent' dari 'D'?",
+    options: [
+      "A",
+      "B",
+      "C",
+      "E",
+      "G"
+    ],
+    correct: 2,
+    explanation: "Parent dari node 'D' adalah node 'B'. Sibling dari node 'B' adalah node-node yang memiliki parent yang sama dengan 'B'. Dalam ilustrasi, node 'A' adalah parent dari 'B' dan 'C'. Oleh karena itu, 'C' adalah sibling dari 'B'."
+  },
+  {
+    question: "44. Mengapa `java.util.TreeMap` (yang menggunakan Red-Black Tree secara internal) lebih disukai daripada mengimplementasikan `Binary Search Tree` sederhana dari awal untuk aplikasi yang memerlukan map terurut dengan kinerja yang konsisten?",
+    options: [
+      "Karena `TreeMap` adalah `thread-safe` secara default.",
+      "Karena `TreeMap` menjamin kompleksitas waktu O(1) untuk semua operasi kunci.",
+      "Karena `TreeMap` secara otomatis menjaga keseimbangan Tree (menjadi *self-balancing BST*), menjamin kompleksitas O(log n) untuk operasi `put`, `get`, dan `remove` dalam kasus terburuk, tidak seperti BST sederhana yang bisa degenerasi menjadi O(n).",
+      "Karena `TreeMap` hanya dapat menyimpan tipe data primitif, membuatnya lebih cepat.",
+      "Karena `TreeMap` tidak memerlukan penggunaan rekursi untuk operasinya."
+    ],
+    correct: 2,
+    explanation: "`TreeMap` (dan `TreeSet`) di Java menggunakan Red-Black Tree, yang merupakan jenis Binary Search Tree yang secara otomatis menyeimbangkan diri. Ini sangat penting karena BST sederhana dapat degenerasi menjadi struktur seperti Linked List (tinggi O(n)) dalam kasus penyisipan tertentu, mengakibatkan performa O(n) untuk pencarian, penambahan, dan penghapusan. Red-Black Tree menjamin bahwa tinggi Tree tetap sekitar O(log n), sehingga operasi-operasi tersebut selalu memiliki kompleksitas O(log n) dalam kasus terburuk, memberikan kinerja yang konsisten dan dapat diprediksi."
+  },
+  {
+    question: "45. Dalam konteks Binary Tree, jika sebuah node memiliki 'depth' 3, dan node tersebut merupakan 'leaf node', berapakah 'height' dari node tersebut?",
+    options: [
+      "0",
+      "1",
+      "2",
+      "3",
+      "Tidak dapat ditentukan dari informasi yang diberikan."
+    ],
+    correct: 0,
+    explanation: "Height (tinggi) sebuah node didefinisikan sebagai jumlah edge pada jalur terpanjang dari node tersebut ke leaf node terendah di subtree-nya. Sebuah 'leaf node' didefinisikan sebagai node yang tidak memiliki anak. Oleh karena itu, jalur terpanjang dari sebuah leaf node ke dirinya sendiri (karena tidak ada anak) adalah 0 edge. Jadi, tinggi sebuah leaf node selalu 0, terlepas dari kedalamannya (depth) dalam Tree."
+  },
+  {
+    question: "46. Sebuah `ArrayList<Integer>` berisi `[5, 2, 8, 1, 9]`. Anda ingin mengurutkannya menggunakan `Collections.sort()` dan kemudian mencari angka `8` menggunakan `Collections.binarySearch()`. Berapakah nilai indeks yang akan dikembalikan oleh `binarySearch()`?",
+    options: [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    correct: 3,
+    explanation: "Pertama, `Collections.sort()` akan mengurutkan `ArrayList` menjadi `[1, 2, 5, 8, 9]`. Kemudian, `Collections.binarySearch(list, 8)` akan mencari angka 8. Dalam array yang diurutkan tersebut, 8 berada pada indeks ke-3."
+  },
+  {
+    question: "47. Anda memiliki sebuah array `int[] data = {10, 3, 7, 1, 9};`. Anda ingin mengurutkannya menggunakan Selection Sort secara menaik. Berapa jumlah pertukaran (swaps) minimum yang akan terjadi untuk mengurutkan array ini hingga selesai?",
+    options: [
+      "2",
+      "3",
+      "4",
+      "5",
+      "Tidak dapat ditentukan."
+    ],
+    correct: 2,
+    explanation: "Mari kita lacak Selection Sort:\n`[10, 3, 7, 1, 9]`\n1. Cari elemen terkecil di `[10, 3, 7, 1, 9]` (yaitu 1). Tukar 10 dengan 1. -> `[1, 3, 7, 10, 9]` (1 swap)\n2. Cari elemen terkecil di `[3, 7, 10, 9]` (yaitu 3). Tukar 3 dengan 3 (tidak ada perubahan posisi, tetapi dihitung sebagai swap ke dirinya sendiri). -> `[1, 3, 7, 10, 9]` (0 swap efektif, tapi 1 operasi tukar)\n3. Cari elemen terkecil di `[7, 10, 9]` (yaitu 7). Tukar 7 dengan 7. -> `[1, 3, 7, 10, 9]` (0 swap efektif, tapi 1 operasi tukar)\n4. Cari elemen terkecil di `[10, 9]` (yaitu 9). Tukar 10 dengan 9. -> `[1, 3, 7, 9, 10]` (1 swap)\nJumlah swap yang efektif (perubahan posisi) adalah 2 (10<->1 dan 10<->9). Namun, jika kita menghitung setiap kali operasi swap dilakukan, terlepas dari apakah elemen pindah atau tidak, maka ada 4 iterasi utama, dan setiap iterasi akan melakukan 1 swap (total 4 swap). Soal menanyakan jumlah pertukaran *minimum* yang *terjadi* (yang mengubah posisi), maka jawabannya adalah 2. Namun, jika pertanyaan merujuk pada jumlah operasi pertukaran yang pasti terjadi pada setiap iterasi dari algoritma Selection Sort, maka itu adalah 4. Dalam konteks algoritma, Selection Sort secara karakteristik melakukan tepat `n-1` pertukaran (swaps) untuk array berukuran `n`. Untuk `n=5`, ini adalah `5-1 = 4` swap. Namun, karena elemen 3 dan 7 sudah pada posisi relatif yang benar, *efektif* hanya 2 swap yang mengubah posisi elemen. Mengingat definisi umum Selection Sort, ia akan selalu melakukan `n-1` penukaran (meskipun kadang dengan dirinya sendiri). Jadi, 4 adalah jawaban yang lebih tepat untuk jumlah *pertukaran* yang terjadi dalam algoritma."
+  },
+  {
+    question: "48. Sebuah data set berjumlah 1 juta elemen akan diurutkan dan kemudian dicari sebanyak 1000 kali. Algoritma sorting dan searching manakah yang paling efisien secara total untuk skenario ini? Asumsikan kompleksitas sorting O(N log N) dan searching O(log N) untuk data terurut, dan O(N) untuk data tidak terurut.",
+    options: [
+      "Sorting dengan Bubble Sort, lalu Searching dengan Linear Search.",
+      "Sorting dengan Insertion Sort, lalu Searching dengan Binary Search.",
+      "Sorting dengan TimSort, lalu Searching dengan Binary Search.",
+      "Sorting dengan Quick Sort (terburuk), lalu Searching dengan Linear Search.",
+      "Tidak perlu sorting, cukup gunakan Linear Search setiap kali."
+    ],
+    correct: 2,
+    explanation: "Bubble Sort dan Insertion Sort memiliki O(N^2) yang sangat lambat untuk 1 juta elemen. Linear Search juga O(N), yang akan sangat lambat jika dilakukan 1000 kali. TimSort (digunakan oleh Java untuk objek) adalah O(N log N), sangat efisien untuk sorting. Setelah data diurutkan, Binary Search adalah O(log N) per pencarian, yang sangat cepat. Total biaya: O(N log N) untuk sorting + 1000 * O(log N) untuk searching, yang jauh lebih efisien daripada opsi lain untuk kumpulan data besar."
+  },
+  {
+    question: "49. Dalam konteks stabilitas algoritma sorting, mengapa menjaga stabilitas penting ketika mengurutkan objek kompleks (misalnya, daftar objek `Mahasiswa` yang memiliki `nama` dan `nilai_ipk`) dan Anda mengurutkan berdasarkan `nilai_ipk`?",
+    options: [
+      "Stabilitas memastikan algoritma selalu berjalan dalam O(n log n).",
+      "Stabilitas menjamin bahwa objek dengan nilai `ipk` yang sama akan mempertahankan urutan aslinya. Ini penting jika ada kriteria sekunder (misalnya, nama) yang ingin dipertahankan untuk objek dengan nilai `ipk` yang sama.",
+      "Stabilitas hanya relevan untuk algoritma non-perbandingan.",
+      "Algoritma stabil lebih mudah diimplementasikan.",
+      "Algoritma tidak stabil dapat menyebabkan kehilangan data."
+    ],
+    correct: 1,
+    explanation: "Stabilitas pengurutan berarti bahwa jika ada dua elemen yang memiliki nilai kunci yang sama (dalam kasus ini, dua mahasiswa dengan `nilai_ipk` yang sama), urutan relatif mereka dalam daftar asli akan dipertahankan setelah pengurutan. Ini sangat penting jika ada kriteria pengurutan sekunder atau jika urutan asli memiliki makna. Misalnya, jika Anda mengurutkan daftar mahasiswa berdasarkan IPK, dan ada dua mahasiswa dengan IPK yang sama, Anda mungkin ingin mereka tetap terurut berdasarkan nama asli mereka dalam daftar input. Algoritma stabil akan menjamin ini."
+  },
+  {
+    question: "50. Algoritma Binary Search memiliki prasyarat utama bahwa data harus diurutkan dan dapat diakses secara acak (O(1)). Mengapa Binary Search tidak efisien (bahkan tidak praktis) jika diterapkan pada `java.util.LinkedList` meskipun data di dalamnya sudah terurut?",
+    options: [
+      "Karena `LinkedList` adalah struktur data yang tidak stabil.",
+      "Karena `LinkedList` tidak mendukung pengaksesan acak (random access). Mencapai elemen tengah memerlukan traversal O(n), menghapus keuntungan O(log n) dari Binary Search.",
+      "Karena `LinkedList` tidak dapat menyimpan data numerik.",
+      "Karena `LinkedList` tidak dapat diurutkan oleh `Collections.sort()`.",
+      "Karena Binary Search hanya bisa dilakukan pada array primitif."
+    ],
+    correct: 1,
+    explanation: "Binary Search membutuhkan akses cepat ke elemen tengah. Pada `java.util.LinkedList`, untuk mengakses elemen pada indeks tertentu (misalnya, elemen tengah), diperlukan traversal dari awal atau akhir daftar, yang memiliki kompleksitas waktu O(n). Ini menghilangkan keuntungan logaritmik dari Binary Search. Meskipun `Collections.binarySearch()` dapat digunakan pada `List`, ia akan secara internal melakukan traversal O(n) untuk mendapatkan elemen, sehingga performanya akan mendekati O(n) secara keseluruhan, bukan O(log n)."
+  },
+  {
+    question: "51. Anda diminta untuk mengimplementasikan sebuah sistem yang secara teratur menerima aliran data kecil (sekitar 50-100 elemen) yang sedikit tidak terurut dan perlu mengurutkannya untuk pemrosesan lebih lanjut. Algoritma sorting manakah yang paling efisien untuk skenario ini, dan mengapa?",
+    options: [
+      "Merge Sort, karena selalu O(n log n) yang stabil.",
+      "Quick Sort, karena ini adalah algoritma tercepat secara rata-rata.",
+      "Bubble Sort, karena paling sederhana untuk diimplementasikan.",
+      "Insertion Sort, karena memiliki kinerja O(n) dalam kasus mendekati terurut dan overhead yang rendah untuk ukuran kecil.",
+      "Selection Sort, karena jumlah swap-nya minimum."
+    ],
+    correct: 3,
+    explanation: "Untuk kumpulan data kecil atau yang hampir terurut, Insertion Sort adalah pilihan yang sangat efisien. Meskipun kompleksitas kasus terburuknya adalah O(n^2), untuk data yang hampir terurut, ia mendekati O(n) karena elemen hanya perlu digeser sedikit. Overheadnya juga sangat rendah. Algoritma O(n log n) seperti Merge Sort dan Quick Sort, meskipun lebih baik untuk data besar, memiliki overhead konstanta yang lebih tinggi yang mungkin tidak sebanding untuk kumpulan data yang sangat kecil."
+  },
+  {
+    question: "52. Pertimbangkan sebuah algoritma sorting yang memiliki kompleksitas waktu terbaik, rata-rata, dan terburuk yang sama, yaitu O(n^2). Algoritma ini berulang kali mencari elemen terkecil dari sub-array yang belum diurutkan dan menukarnya ke posisi yang benar. Algoritma ini juga dikenal karena melakukan jumlah pertukaran elemen yang paling sedikit di antara algoritma O(n^2). Algoritma apakah ini?",
+    options: [
+      "Bubble Sort",
+      "Insertion Sort",
+      "Selection Sort",
+      "Quick Sort",
+      "Merge Sort"
+    ],
+    correct: 2,
+    explanation: "Ini adalah deskripsi karakteristik dari Selection Sort. Ia selalu melakukan O(n^2) perbandingan karena harus mencari elemen minimum di setiap iterasi. Namun, ia hanya melakukan O(n) pertukaran (tepat n-1 pertukaran), yang merupakan jumlah pertukaran minimum di antara algoritma O(n^2) yang berbasis perbandingan."
+  },
+  {
+    question: "53. Manakah pernyataan berikut yang paling akurat mengenai perilaku `java.util.Arrays.sort()` untuk array `int[]` dan `Object[]`?",
+    options: [
+      "Keduanya menggunakan algoritma TimSort.",
+      "Keduanya menggunakan Dual-Pivot QuickSort.",
+      "`int[]` menggunakan Dual-Pivot QuickSort, sedangkan `Object[]` menggunakan TimSort.",
+      "`int[]` menggunakan TimSort, sedangkan `Object[]` menggunakan HeapSort.",
+      "Keduanya dapat diimplementasikan secara manual oleh pengguna."
+    ],
+    correct: 2,
+    explanation: "Sejak Java 7, `java.util.Arrays.sort()` menggunakan Dual-Pivot QuickSort untuk array tipe primitif (seperti `int[]`) karena performanya yang sangat baik untuk data primitif. Untuk array objek (`Object[]`), `Arrays.sort()` (dan `Collections.sort()`) menggunakan TimSort, yang merupakan algoritma hibrida stabil yang efisien untuk data nyata dan mempertahankan urutan relatif elemen yang setara."
+  },
+  {
+    question: "54. Diberikan array `String[] names = {\"Budi\", \"Ani\", \"Cici\", \"Doni\"}`. Anda ingin mengurutkannya berdasarkan panjang string (terpendek ke terpanjang). Metode `java.util.Arrays.sort()` mana yang paling sesuai untuk digunakan dan bagaimana Anda akan menerapkannya?",
+    options: [
+      "`Arrays.sort(names);` (akan mengurutkan secara alfabetis)",
+      "`Arrays.sort(names, (s1, s2) -> s1.length() - s2.length());`",
+      "`Arrays.sort(names, Collections.reverseOrder());`",
+      "`Arrays.sort(names, new Comparator<String>() { ... });` tetapi harus implementasi defaultnya.",
+      "Hanya mungkin dengan mengimplementasikan algoritma sorting kustom."
+    ],
+    correct: 1,
+    explanation: "Untuk mengurutkan objek berdasarkan kriteria kustom (bukan urutan alami), Anda perlu menyediakan `Comparator`. Opsi B menggunakan *lambda expression* untuk membuat `Comparator` yang membandingkan panjang string (`s1.length() - s2.length()`). Jika hasilnya negatif, `s1` lebih pendek; jika positif, `s2` lebih pendek; jika nol, panjangnya sama."
+  },
+  {
+    question: "55. Manakah dari pernyataan berikut yang paling tepat menjelaskan Trade-Off antara Linear Search dan Binary Search pada konteks aplikasi dunia nyata?",
+    options: [
+      "Binary Search selalu lebih cepat daripada Linear Search, sehingga selalu menjadi pilihan utama.",
+      "Linear Search lebih cocok untuk kumpulan data yang sangat besar karena tidak memerlukan memori tambahan.",
+      "Jika data sering dimodifikasi dan pencarian jarang terjadi, Linear Search mungkin lebih baik karena tidak ada biaya pengurutan awal atau pemeliharaan urutan. Namun, jika pencarian sering dan data relatif statis, biaya sorting awal untuk Binary Search akan terbayar lunas.",
+      "Binary Search lebih mudah diimplementasikan daripada Linear Search.",
+      "Linear Search tidak dapat menemukan elemen jika ada duplikasi dalam data."
+    ],
+    correct: 2,
+    explanation: "Ini adalah trade-off kunci. Linear Search (O(n)) sederhana dan tidak memerlukan data terurut, cocok untuk pencarian tunggal atau data yang sering berubah. Binary Search (O(log n)) jauh lebih cepat untuk pencarian berulang pada data yang besar, tetapi membutuhkan biaya awal untuk mengurutkan (O(n log n)) dan mempertahankan urutan jika data dimodifikasi. Jika banyak pencarian akan dilakukan, investasi awal dalam sorting akan menghasilkan keuntungan besar dalam performa pencarian berikutnya."
+  },
+  {
+    question: "56. Sebuah array `int[] nums = {4, 2, 8, 1, 6}` akan diurutkan menggunakan Bubble Sort secara menaik. Berapa banyak 'pass' (fase iterasi penuh) yang dibutuhkan algoritma ini untuk menjamin array sepenuhnya terurut?",
+    options: [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    correct: 3,
+    explanation: "Untuk mengurutkan `n` elemen, Bubble Sort membutuhkan `n-1` pass (fase iterasi penuh) untuk menjamin array sepenuhnya terurut. Dalam kasus ini, `n=5`, jadi dibutuhkan `5-1 = 4` pass. Meskipun array mungkin terurut lebih cepat dalam kasus tertentu, `n-1` pass adalah jaminan untuk menyelesaikan pengurutan."
+  },
+  {
+    question: "57. Perhatikan array `int[] arr = {1, 2, 3, 4, 5}`. Berapa perbandingan yang dilakukan oleh `binarySearch(arr, 0)` untuk menentukan bahwa elemen `0` tidak ada dalam array ini?",
+    options: [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    correct: 2,
+    explanation: "Mari kita lacak Binary Search untuk `0` di `[1, 2, 3, 4, 5]`:\n- Iterasi 1: `low=0`, `high=4`, `mid=2` (elemen 3). `0 < 3`, jadi `high = mid - 1` (yaitu `high=1`). (1 perbandingan)\n- Iterasi 2: `low=0`, `high=1`, `mid=0` (elemen 1). `0 < 1`, jadi `high = mid - 1` (yaitu `high=-1`). (1 perbandingan)\n- Iterasi 3: `low=0`, `high=-1`. Kondisi `low <= high` salah. Loop berakhir. (Tidak ada perbandingan dalam iterasi ini, tapi perbandingan loop `low <= high` itu sendiri yang menyebabkan keluar)\nTotal perbandingan nilai elemen adalah 2 (bandingkan 0 dengan 3, bandingkan 0 dengan 1). Perbandingan `low <= high` juga terjadi, namun biasanya yang dihitung adalah perbandingan data."
+  },
+  {
+    question: "58. Algoritma sorting manakah yang paling mendekati O(n) dalam kasus terbaik (ketika array sudah terurut), tetapi memiliki kompleksitas O(n^2) dalam kasus rata-rata dan terburuk?",
+    options: [
+      "Selection Sort",
+      "Quick Sort",
+      "Insertion Sort",
+      "Merge Sort",
+      "Bubble Sort"
+    ],
+    correct: 2,
+    explanation: "Insertion Sort memiliki kompleksitas O(n) dalam kasus terbaik (array sudah terurut) karena setiap elemen hanya perlu dibandingkan dengan elemen sebelumnya (tidak ada pergeseran). Namun, dalam kasus rata-rata dan terburuk, ia adalah O(n^2)."
+  },
+  {
+    question: "59. `java.util.Collections.sort()` menggunakan TimSort. Mengapa TimSort dipilih sebagai algoritma sorting default untuk `List` objek di Java, dibandingkan dengan algoritma lain seperti QuickSort yang seringkali cepat secara rata-rata?",
+    options: [
+      "TimSort selalu memiliki kompleksitas waktu O(n) untuk semua kasus.",
+      "TimSort adalah algoritma non-perbandingan yang sangat cepat.",
+      "TimSort adalah algoritma hibrida yang stabil dan berkinerja baik pada berbagai jenis data dunia nyata (terutama data yang sebagian terurut), serta menjamin performa O(n log n) di kasus terburuk.",
+      "TimSort lebih mudah diimplementasikan daripada QuickSort.",
+      "TimSort menggunakan memori lebih sedikit daripada QuickSort."
+    ],
+    correct: 2,
+    explanation: "TimSort adalah pilihan populer untuk sorting umum karena beberapa alasan kunci: 1) Ia adalah algoritma *stabil*, yang penting untuk objek kompleks. 2) Ia adalah algoritma *hibrida* (gabungan Merge Sort dan Insertion Sort) yang sangat dioptimalkan untuk data dunia nyata, terutama data yang sebagian terurut. 3) Ia menjamin kompleksitas waktu O(n log n) bahkan di kasus terburuk, berbeda dengan QuickSort yang bisa O(n^2) di kasus terburuk."
+  },
+  {
+    question: "60. Apa konsekuensi utama jika Anda mencoba menggunakan `java.util.Arrays.binarySearch()` pada array yang **belum diurutkan**?",
+    options: [
+      "Metode akan melempar `IllegalArgumentException`.",
+      "Metode akan selalu mengembalikan -1, menunjukkan elemen tidak ditemukan.",
+      "Metode mungkin mengembalikan hasil yang tidak terduga (indeks yang salah atau negatif) atau bahkan tidak menemukan elemen meskipun ada, karena asumsi pengurutan dilanggar.",
+      "Metode akan secara otomatis mengurutkan array terlebih dahulu, lalu melakukan pencarian.",
+      "Metode akan melakukan pencarian linier sebagai fallback."
+    ],
+    correct: 2,
+    explanation: "`binarySearch()` dirancang dengan asumsi ketat bahwa array input sudah diurutkan. Jika array tidak diurutkan, perilaku metode ini tidak terdefinisi. Ia tidak akan melempar `Exception`, tidak akan mengurutkan array secara otomatis, dan tidak akan melakukan pencarian linier. Sebaliknya, ia kemungkinan akan mengembalikan hasil yang tidak benar (misalnya, indeks yang salah atau nilai negatif yang tidak informatif) karena logika bagi dua-nya akan beroperasi pada data yang tidak terurut, yang merusak asumsinya."
+  }
+];
+
+const container = document.getElementById("quiz-container");
+
+// Generate soal ke halaman
+quizData.forEach((q, i) => {
+  const qDiv = document.createElement("div");
+  qDiv.classList.add("question");
+  qDiv.innerHTML = `
+    <p>${q.question}</p>
+    ${q.options.map((opt, idx) => `
+      <label><input type="radio" name="q${i}" value="${idx}"> ${String.fromCharCode(65 + idx)}. ${opt}</label><br>
+    `).join("")}
+    <div class="explanation" id="exp${i}"></div>
+  `;
+  container.appendChild(qDiv);
+});
+
+// Fungsi pengecekan jawaban yang diperbaiki
+function checkAnswers() {
+  let score = 0;
+  quizData.forEach((q, i) => {
+    const radios = document.getElementsByName(`q${i}`);
+    const expDiv = document.getElementById(`exp${i}`);
+    let userAnswer = -1;
+
+    radios.forEach((r) => {
+      if (r.checked) userAnswer = parseInt(r.value);
+    });
+
+    // Reset warna
+    radios.forEach((r) => {
+      r.parentElement.style.color = "black";
+    });
+
+    // Warnai jawaban benar dan salah
+    radios.forEach((r) => {
+      const val = parseInt(r.value);
+      if (val === q.correct) {
+        r.parentElement.style.color = "green";
+      } else if (val === userAnswer) {
+        r.parentElement.style.color = "red";
+      }
+    });
+
+    if (userAnswer === q.correct) {
+      score++;
+    }
+
+    // Pastikan penjelasan muncul
+    if (expDiv) { // Tambahkan pengecekan ini untuk memastikan elemen ada
+      expDiv.style.display = "block";
+      expDiv.innerHTML = `<strong>Penjelasan:</strong> ${q.explanation}`;
+    }
+  });
+
+  document.getElementById("result").innerText = `Skor Anda: ${score} dari ${quizData.length}`;
+}
+</script>
+
+</body>
+</html>
