@@ -78,8 +78,7 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Bayangan lebih jelas */
             padding: 25px; /* Padding card sedikit dikecilkan */
             /* Flex properties for cards */
-            flex: 1 1 calc(33.33% - 30px); /* Kunci: Mengurangi lebar basis untuk memperkecil card */
-                                            /* 30px adalah kompensasi untuk gap, agar total lebar mendekati 100% */
+            flex: 1 1 calc(33.33% - 30px); /* Mengurangi lebar basis untuk 3 kartu per baris */
             min-width: 100px; /* Lebar minimum card lebih kecil */
             max-width: 250px; /* Batas lebar maksimum card untuk menjaga proporsi */
             text-align: center;
@@ -164,7 +163,7 @@
             }
         }
 
-        /* Untuk layar mobile (misal: di bawah 768px) */
+        /* Perbaikan untuk layar mobile (di bawah 768px) */
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -174,23 +173,33 @@
                 margin-bottom: 10px;
             }
             .main-content {
-                padding: 20px 15px;
+                padding: 20px 15px; /* Kurangi padding horizontal agar konten tidak terlalu menepi */
             }
             .main-content h1 {
                 font-size: 2em;
                 margin-bottom: 30px;
             }
             .card {
-                flex: 1 1 95%; /* Satu kartu per baris pada mobile, dengan sedikit margin */
-                padding: 20px;
+                /* Perbaikan utama untuk responsivitas mobile */
+                flex: 1 1 100%; /* Satu kartu per baris dan mengisi lebar penuh */
                 max-width: none; /* Hilangkan batasan lebar maksimum */
+                padding: 20px; /* Jaga padding internal card */
+                /* Tambahkan margin horizontal untuk menjaga jarak dari tepi layar */
+                margin-left: 10px; /* Contoh margin */
+                margin-right: 10px; /* Contoh margin */
+                /* Atau lebih baik gunakan width: calc(100% - 40px) jika tidak ada flex-gap di container */
+                width: calc(100% - 40px); /* Lebar card dikurangi total padding */
             }
             .card h2 {
                 font-size: 1.5em;
             }
             .card-button {
-                width: 98%;
+                width: 85%;
                 font-size: 1em;
+            }
+            /* Sesuaikan juga gap pada card-container untuk mobile jika perlu */
+            .card-container {
+                gap: 15px; /* Sedikit kurangi gap antar kartu di mobile */
             }
         }
     </style>
