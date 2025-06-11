@@ -192,9 +192,9 @@ const quizData = [
   },
   {
     question: "16. Di mana penempatan script JavaScript eksternal yang paling direkomendasikan agar tidak menghambat proses pemuatan halaman?",
-    options: ["Di dalam <head> tanpa atribut", "Di awal <body>", "Di akhir <body> atau dengan atribut defer", "Setelah tag penutup </html>"],
+    options: ["Di dalam &lt;head&gt; tanpa atribut", "Di awal &lt;body&gt;", "Di akhir &lt;body&gt; atau dengan atribut defer", "Setelah tag penutup </html>"],
     correct: 2,
-    explanation: "Penempatan script di akhir <body> atau dengan atribut defer memungkinkan HTML dimuat dulu sebelum JavaScript dijalankan, sehingga tidak menghambat rendering."
+    explanation: "Penempatan script di akhir <&lt;body&gt; atau dengan atribut defer memungkinkan HTML dimuat dulu sebelum JavaScript dijalankan, sehingga tidak menghambat rendering."
   },
   {
     question: "17. Apa perbedaan utama antara deklarasi variabel dengan var, let, dan const?",
@@ -244,8 +244,8 @@ const quizData = [
     question: "21. Perhatikan kode berikut:\n\nconst el = document.createElement('div');\nel.textContent = 'Halo';\ndocument.body.appendChild(el);\n\nApa yang terjadi di halaman?",
     options: [
       "Tidak ada perubahan pada halaman",
-      "Tag <div> kosong ditambahkan ke body",
-      "Tag <div> dengan teks 'Halo' ditambahkan ke body",
+      "Tag &lt;div&gt; kosong ditambahkan ke body",
+      "Tag &lt;HEAD&gt; dengan teks 'Halo' ditambahkan ke body",
       "Terjadi error karena elemen tidak valid"
     ],
     correct: 2,
