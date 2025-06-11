@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Latsol DAMP</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      color: #333;
+    }
+    .quiz-section {
+      margin-bottom: 40px;
+    }
+    .question {
+      background-color: #fff;
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 4px solid #007BFF;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .explanation {
+      margin-top: 10px;
+      padding: 8px;
+      background-color: #e9ecef;
+      font-size: 14px;
+      display: none;
+      border-left: 3px solid #17a2b8;
+    }
+  </style>
+</head>
+<body>
+
+<h1>SEMANGAT UAS DAMP YEAH, btw cmiiw yg buat gpt bukan nabi</h1>
+
+<div id="quiz-container"></div>
+<button onclick="checkAnswers()">Submit Jawaban</button>
+<p id="result"></p>
+
+<script>
+const quizData = [
+  {
+    question: "1. Elemen terkecil dari elemen desain adalah:",
+    options: ["Titik", "Garis", "Bidang", "Tekstur"],
+    correct: 0,
+    explanation: "Titik adalah elemen paling dasar dalam desain, tanpa dimensi."
+  },
+  {
+    question: "2. Garis sebagai elemen desain berfungsi untuk:",
+    options: ["Meningkatan keterbacaan & pemahaman konten", "Membentuk perhatian, drama dan hirarki", "Membuat kesan tampilan tidak flat", "Membantu menciptakan arah visual"],
+    correct: 3,
+    explanation: "Garis dapat digunakan untuk memandu mata pengguna, menciptakan batasan, dan memberikan arah."
+  },
+  {
+    question: "3. Elemen desain yang berfungsi untuk memberi kesan konkrit pada suatu permukaan dan menghilangkan kesan datar (flat) adalah:",
+    options: ["Ukuran", "Warna", "Tekstur", "Bentuk"],
+    correct: 2,
+    explanation: "Tekstur memberikan dimensi dan kesan taktil pada permukaan, menghilangkan kesan datar."
+  },
+  {
+    question: "4. Whitespace berguna untuk:",
+    options: ["Menggambarkan alur proses antar halaman web", "Memperbanyak warna putih", "Menghilangkan kesan penuh dan sumpek", "Memperbanyak konten informasi"],
+    correct: 2,
+    explanation: "Whitespace atau ruang kosong membantu memisahkan elemen, meningkatkan keterbacaan, dan mengurangi kekacauan visual."
+  },
+  {
+    question: "5. Kesan kontras dapat diperoleh dengan:",
+    options: ["Menggunakan warna yang senada", "Menggunakan bentuk yang serupa", "Memperbesar jarak antar elemen", "Memperbesar ukuran satu elemen"],
+    correct: 3,
+    explanation: "Kontras bisa diciptakan melalui perbedaan ukuran, warna, bentuk, atau nilai untuk menonjolkan elemen."
+  },
+  {
+    question: "6. Kesan konsistensi dapat diperoleh dengan:",
+    options: ["Membangun hirarki", "Menerapkan repetisi", "Menciptakan arah visual", "Memunculkan kontras"],
+    correct: 1,
+    explanation: "Repetisi (pengulangan) elemen desain yang sama secara konsisten menciptakan kesan yang teratur dan familiar."
+  },
+  {
+    question: "7. Konsistensi dalam desain web penting agar:",
+    options: ["Memudahkan user beradaptasi dengan website", "Memudahkan user mencari via search engine", "Memudahkan akses website dari gadget", "Memudahkan user menuju alamat website"],
+    correct: 0,
+    explanation: "Konsistensi memungkinkan pengguna belajar pola interaksi dan navigasi dengan cepat, sehingga mudah beradaptasi."
+  },
+  {
+    question: "8. Untuk menampilkan foto yang kaya warna, gradien dan tanpa transparansi, format yang cocok digunakan adalah:",
+    options: ["GIF", "PNG", "JPG", "SVG"],
+    correct: 2,
+    explanation: "JPG cocok untuk foto atau gambar dengan banyak warna dan gradasi karena menggunakan kompresi lossy yang optimal untuk itu, namun tidak mendukung transparansi."
+  },
+  {
+    question: "9. Untuk menampilkan gambar yang mendukung interaktivitas pada web, format yang cocok digunakan adalah:",
+    options: ["GIF", "PNG", "JPG", "SVG"],
+    correct: 3,
+    explanation: "SVG (Scalable Vector Graphics) berbasis XML, dapat diskrip (interaktif) dengan JavaScript dan diskalakan tanpa kehilangan kualitas."
+  },
+  {
+    question: "10. Perbedaan gambar raster dan vector adalah:",
+    options: ["Gambar vector tidak terpengaruh oleh perbesaran.", "Gambar vector tersusun oleh titik-titik pixel.", "Gambar raster tersusun oleh garis dan kurva.", "Gambar raster tidak terpengaruh oleh perbesaran."],
+    correct: 0,
+    explanation: "Gambar vektor dibentuk oleh persamaan matematis (garis, kurva), sehingga dapat diperbesar tanpa pecah. Gambar raster (piksel) akan pecah saat diperbesar."
+  },
+  {
+    question: "11. Warna yang dihasilkan pada model warna _____ berasal dari cahaya (lights) contohnya pada monitor dan layar gadget.:",
+    options: ["HSL", "RGB", "HEX", "CMYK"],
+    correct: 1,
+    explanation: "Model warna RGB (Red, Green, Blue) adalah model aditif yang digunakan pada perangkat yang memancarkan cahaya seperti monitor."
+  },
+  {
+    question: "12. Menurut teori warna Munsell, istilah yang menunjukkan tingkat gelap terangnya warna, dimana warna yang paling terang adalah putih dan yang paling gelap adalah hitam, adalah:",
+    options: ["Saturation", "Value", "Chroma", "Hue"],
+    correct: 1,
+    explanation: "Value (atau lightness/brightness) mengacu pada seberapa terang atau gelap suatu warna."
+  },
+  {
+    question: "13. Warna ungu dihasilkan dari gabungan warna merah dan biru, maka warna ungu termasuk dalam warna:",
+    options: ["Primer", "Sekunder", "Tersier", "Komplementer"],
+    correct: 1,
+    explanation: "Warna sekunder adalah hasil pencampuran dua warna primer."
+  },
+  {
+    question: "14. Kombinasi warna yang bersebelahan satu sama lain dalam roda warna (color wheel) disebut warna:",
+    options: ["Analogous", "Triad", "Complementary", "Monochromatic"],
+    correct: 0,
+    explanation: "Warna Analogous adalah tiga warna yang berada di samping satu sama lain pada roda warna."
+  },
+  {
+    question: "15. Kombinasi warna yang bersebelahan satu sama lain dalam roda warna (color wheel) disebut warna:",
+    options: ["Analogous", "Triad", "Complementary", "Monochromatic"],
+    correct: 0,
+    explanation: "Pertanyaan ini sama dengan no. 14. Warna Analogous adalah tiga warna yang berada di samping satu sama lain pada roda warna."
+  },
+  {
+    question: "16. Penulisan kode warna dengan tanda pagar (#) diawalnya, diikuti dengan enam karakter angka dan atau huruf (0-9; a-f), contoh #4170ff disebut kode warna:",
+    options: ["HSL", "RGB", "HEX", "CMYK"],
+    correct: 2,
+    explanation: "HEX (Hexadecimal) adalah format umum untuk menentukan warna di web, menggunakan enam digit heksadesimal."
+  },
+  {
+    question: "17. Manakah komponen warna yang termasuk kelompok warm color:",
+    options: ["Orange, yellow, green", "Orange, yellow, red", "Orange, yellow, blue", "Orange, yellow, purple"],
+    correct: 1,
+    explanation: "Warm colors (warna hangat) umumnya terkait dengan api dan matahari, termasuk merah, oranye, dan kuning."
+  },
+  {
+    question: "18. Dalam web yang kita rancang, dipilih sebuah font dekoratif yang sangat spesifik. Apabila kita ingin font tersebut tampil dengan optimal pada semua perangkat user, maka kita harus memilih font yang tersedia pada:",
+    options: ["Common font", "Core font", "Webfont", "System font"],
+    correct: 2,
+    explanation: "Webfont (misalnya dari Google Fonts) adalah font yang diunduh oleh browser sehingga dapat ditampilkan secara konsisten di berbagai perangkat."
+  },
+  {
+    question: "19. Tujuan utama dari teknik tipografi kecuali:",
+    options: ["Memilih jenis huruf dan teks", "Mengatur penyebaran huruf dan teks", "Meningkatkan kenyamanan membaca", "Menciptakan arah visual"],
+    correct: 3,
+    explanation: "Menciptakan arah visual lebih merupakan fungsi dari layout atau garis, bukan tipografi secara langsung."
+  },
+  {
+    question: "20. Jarak antara baseline disebut:",
+    options: ["Spacing", "Tracking", "Leading", "Kerning"],
+    correct: 2,
+    explanation: "Leading (atau line-height dalam CSS) adalah jarak vertikal antara garis dasar (baseline) dari dua baris teks yang berurutan."
+  },
+  {
+    question: "21. Jarak antara karakter disebut:",
+    options: ["Spacing", "Tracking", "Leading", "Kerning"],
+    correct: 1,
+    explanation: "Tracking (atau letter-spacing) adalah penyesuaian jarak horizontal antara semua karakter dalam sekelompok teks secara merata."
+  },
+  {
+    question: "22. Tingkat kemudahan sebuah karakter/huruf diidentifikasi dan dibedakan dengan huruf/karakter lainnya disebut:",
+    options: ["Legibility", "Adaptibility", "Readability", "Traceability"],
+    correct: 0,
+    explanation: "Legibility mengacu pada seberapa mudah huruf individu dapat dibedakan satu sama lain."
+  },
+  {
+    question: "23. Tingkat kemudahan keterbacaan sekumpulan huruf berupa kalimat atau paragraf disebut:",
+    options: ["Legibility", "Adaptibility", "Readability", "Traceability"],
+    correct: 2,
+    explanation: "Readability mengacu pada seberapa mudah seluruh blok teks atau paragraf dapat dibaca dan dipahami."
+  },
+  {
+    question: "24. Perhatikan gambar berikut: (Asumsi gambar menunjukkan huruf dengan serif) Istilah yang digunakan untuk bagian yang ditunjukkan oleh bulatan putih pada gambar adalah:",
+    options: ["Times", "Serif", "Stroke", "Roman"],
+    correct: 1,
+    explanation: "Serif adalah guratan kecil atau 'kaki' di ujung stroke huruf."
+  },
+  {
+    question: "25. Pengaturan yang tidak tepat antara huruf “A” dan “V” pada gambar berikut adalah pengaturan:",
+    options: ["Spacing", "Tracking", "Leading", "Kerning"],
+    correct: 3,
+    explanation: "Kerning adalah penyesuaian jarak spesifik antara pasangan huruf tertentu untuk memperbaiki penampilan visual, seperti AV, WA, atau To."
+  },
+  {
+    question: "26. Berikut merupakan satuan (unit) yang bersifat relatif, kecuali:",
+    options: ["sp", "pixel (px)", "em", "percent (%)"],
+    correct: 1,
+    explanation: "Pixel (px) adalah unit absolut yang tidak berubah relatif terhadap elemen lain. sp, em, dan percent adalah unit relatif."
+  },
+  {
+    question: "27. Ukuran font 24 px sama dengan _____ em atau rem:",
+    options: ["1", "1,5", "2", "2,5"],
+    correct: 1,
+    explanation: "Jika ukuran font dasar (misalnya, browser default) adalah 16px, maka 24px / 16px = 1.5em atau 1.5rem."
+  },
+  {
+    question: "28. Grafik berukuran tinggi 200 dp pada layar android dengan kepadatan 160 ppi (Mdpi) sama dengan __ pixel",
+    options: ["100", "200", "300", "400"],
+    correct: 1,
+    explanation: "Pada MDPI (160ppi), 1dp setara dengan 1px. Jadi, 200dp = 200px."
+  },
+  {
+    question: "29. Berikut yang tidak termasuk tujuan dari penggunaan grid system adalah:",
+    options: ["Membantu dalam pengaturan konten", "Membuat desain lebih tertata dan rapi", "Membangun konsistensi dalam tampilan", "Membuat desain menjadi tetap (fix)"],
+    correct: 3,
+    explanation: "Grid system justru membantu menciptakan desain yang fleksibel dan responsif, bukan tetap (fix)."
+  },
+  {
+    question: "30. Dalam column grid, bagian yang memisahkan antara kolom dan baris disebut:",
+    options: ["Margin", "Gutter", "Region", "Flowlines"],
+    correct: 1,
+    explanation: "Gutter adalah ruang kosong antara kolom dalam sebuah sistem grid."
+  },
+  {
+    question: "31. Pernyataan terkait system grid berikut yang benar adalah:",
+    options: ["Baseline grid memandu penataan secara vertikal", "Column grid memandu penataan secara vertikal", "Column grid bersifat tetap (fix)", "Baseline grid terdiri dari 12, 8 dan 6 baris"],
+    correct: 1,
+    explanation: "Column grid digunakan untuk menata elemen secara vertikal dalam kolom-kolom. Baseline grid memandu penataan teks secara horizontal."
+  },
+  {
+    question: "32. Apakah yang dimaksud dengan Responsive Web Design?:",
+    options: ["Metode untuk mempermudah desainer web untuk merancang tampilan halaman web", "Metode untuk mengoptimalkan kecepatan load web di berbagai perangkat", "Metode untuk mengoptimalkan respon web terhadap aksi yang diberikan oleh user", "Metode untuk mengoptimalkan tampilan web di berbagai ukuran layar"],
+    correct: 3,
+    explanation: "Responsive Web Design adalah pendekatan desain yang memungkinkan layout website beradaptasi dengan berbagai ukuran layar dan perangkat."
+  },
+  {
+    question: "33. Sketsa yang digunakan untuk menggambarkan secara kasar tata letak pada desain web dan berguna sebagai acuan dasar sebuah desain website disebut:",
+    options: ["Sitemap", "Webmap", "Wireframe", "Prototype"],
+    correct: 2,
+    explanation: "Wireframe adalah representasi visual dasar dari tata letak halaman web, fokus pada struktur dan penempatan elemen."
+  },
+  {
+    question: "34. Elemen &lt;BASE&gt;, &lt;LINK&gt;, &lt;META&gt;, &lt;SCRIPT&gt;, &lt;STYLE&gt; dan &lt;TITLE&gt; tepat bila berada dalam tag:",
+    options: ["&lt;HEAD&gt;", "&lt;HEADER&gt;", "&lt;BODY&gt;", "&lt;DIV&gt;", "&lt;HTML&gt;"],
+    correct: 0,
+    explanation: "Elemen-elemen ini menyediakan metadata atau tautan ke sumber daya eksternal dan harus ditempatkan di dalam tag &lt;head&gt;."
+  },
+  {
+    question: "35. Penulisan kode HTML yang tepat untuk menambahkan gambar adalah:",
+    options: ["&lt;img src=”image.png”&gt;", "&lt;img url=”image.png”&gt;", "&lt;img href=”image.png”&gt;", "&lt;image url=”image.png”&gt;", "&lt;image src=”image.png”&gt;"],
+    correct: 0,
+    explanation: "Tag &lt;img&gt; dengan atribut `src` (source) adalah standar HTML untuk menyisipkan gambar."
+  },
+  {
+    question: "36. Atribut HTML yang berfungsi untuk menampilkan teks alternatif apabila gambar tidak bisa ditemukan, seperti contoh pada gambar, adalah:",
+    options: ["src", "alt", "desc", "title", "caption"],
+    correct: 1,
+    explanation: "Atribut `alt` (alternative text) memberikan deskripsi gambar yang dibaca oleh pembaca layar atau ditampilkan jika gambar tidak bisa dimuat."
+  },
+  {
+    question: "37. Penulisan value atribut HTML yang tepat untuk merujuk pada file “image.png” yang terdapat dalam subfolder bernama “images”adalah:",
+    options: ["&lt;a href = ”../image.png”&gt;", "&lt;a href = ”images/image.png”&gt;", "&lt;a href = ”subfolder/image.png”&gt;", "&lt;a href = ”../../image.png”&gt;", "&lt;a href = ”image.png”&gt;"],
+    correct: 1,
+    explanation: "Jalur relatif `images/image.png` menunjukkan file berada di dalam subfolder 'images' dari lokasi file HTML saat ini."
+  },
+  {
+    question: "38. Pilihlah tag HTML untuk elemen heading dengan prioritas terendah",
+    options: ["&lt;h12&gt;", "&lt;h8&gt;", "&lt;h3&gt;", "&lt;h6&gt;", "&lt;h&gt;"],
+    correct: 3,
+    explanation: "Tag heading HTML berkisar dari &lt;h1&gt; (prioritas tertinggi) hingga `&lt;h6&gt;` (prioritas terendah)."
+  },
+  {
+    question: "39. Penulisan kode HTML yang tepat untuk sebuah hyperlink menuju ke “http://my-blog.com” yang bisa diakses melalui teks “Read more” adalah:",
+    options: ["&lt;link href=”http://my-blog.com”&gt;Read more&lt;/link&gt;", "&lt;a href=”http://my-blog.com”&gt;Read more&lt;/a&gt;", "&lt;hyperlink url=”http://my-blog.com”&gt;Read more&lt;/hyperlink&gt;", "&lt;url link=”http://my-blog.com”&gt;Read more&lt;/url&gt;", "&lt;href url=”http://my-blog.com”&gt;Read more&lt;/href&gt;"],
+    correct: 1,
+    explanation: "Tag &lt;a&gt; (anchor) dengan atribut `href` (hypertext reference) digunakan untuk membuat hyperlink."
+  },
+  {
+    question: "40. Elemen HTML yang berfungsi untuk menambahkan baris baru (line break) adalah ...",
+    options: ["&lt;br&gt;", "&lt;line&gt;", "&lt;lb&gt;", "&lt;newline&gt;", "&lt;break&gt;"],
+    correct: 0,
+    explanation: "Tag &lt;br&gt; adalah tag self-closing yang berfungsi untuk membuat baris baru."
+  },
+  {
+    question: "42. Tag HTML yang berfungsi untuk menampilkan list dengan nomor adalah:",
+    options: ["ul", "li", "ol", "dl", "list"],
+    correct: 2,
+    explanation: "Tag &lt;ol&gt; (ordered list) digunakan untuk daftar yang memiliki urutan (nomor atau huruf)."
+  },
+  {
+    question: "43. Tag HTML yang berfungsi untuk menampilkan list dengan poin (bullet) adalah ...",
+    options: ["ul", "li", "ol", "dl", "list"],
+    correct: 0,
+    explanation: "Tag &lt;ul&gt; (unordered list) digunakan untuk daftar dengan poin atau bullet."
+  },
+  {
+    question: "44. Tag `div`, `p`, dan `h1` adalah contoh tag yang termasuk dalam kategori “block-level” element yang memiliki ciri-ciri:",
+    options: ["Membentuk baris baru ketika ditampilkan pada jendela browser", "Berada pada baris yang sama dengan elemen sebelumnya ketika ditampilkan pada jendela browser", "Tidak ditampilkan pada jendela browser", "Memunculkan window alert ketika ditampilkan pada jendela browser", "Semua benar"],
+    correct: 0,
+    explanation: "Elemen *block-level* selalu dimulai pada baris baru dan mengambil lebar penuh yang tersedia."
+  },
+  {
+    question: "45. Attribut value tag &lt;input&gt; yang tepat untuk menampilkan input form untuk memilih file seperti contoh pada gambar dengan tanda nomor 1 adalah:",
+    options: ["browse", "upload", "file", "submit", "button"],
+    correct: 2,
+    explanation: "Atribut `type='file'` pada tag &lt;input&gt; akan membuat tombol 'Choose File' atau 'Browse'."
+  },
+  {
+    question: "46. Attribut value tag <input> yang tepat untuk menampilkan input form untuk mengunggah file seperti contoh pada gambar dengan tanda nomor 2 adalah:",
+    options: ["text", "upload", "file", "submit", "button"],
+    correct: 3,
+    explanation: "Tombol 'Upload' atau 'Kirim' yang sebenarnya mengunggah file ke server biasanya menggunakan `type='submit'` dalam konteks formulir."
+  },
+  {
+    question: "47. Perbedaan yang mendasar antara atribut “id” dan “class” adalah:",
+    options: ["“id” dapat digunakan lebih dari satu kali sedangkan “class” tidak", "“class” dapat digunakan lebih dari satu kali sedangkan “id” tidak", "“id” dan “class” dapat digunakan dua kali", "“class” dan “id” dapat digunakan hanya satu kali", "“id” merupakan bagian dari “class”."],
+    correct: 1,
+    explanation: "Atribut `id` harus unik di seluruh dokumen, sedangkan `class` dapat digunakan pada beberapa elemen."
+  },
+  {
+    question: "48. Tag HTML yang tepat untuk mendefinisikan bagian situs web pada gambar (Asumsi gambar menunjukkan bagian paling atas/kepala situs) adalah:",
+    options: ["head", "heading", "header", "top", "lead"],
+    correct: 2,
+    explanation: "Tag &lt;header&gt; adalah elemen semantik HTML5 yang mewakili bagian pengantar atau navigasi untuk sebuah dokumen atau bagian."
+  },
+  {
+    question: "49. Tag HTML yang yang tepat untuk mendefinisikan menu navigasi adalah:",
+    options: ["navigation", "navbar", "nav", "menu", "navi"],
+    correct: 2,
+    explanation: "Tag &lt;nav&gt; adalah elemen semantik HTML5 yang digunakan untuk mendefinisikan bagian navigasi."
+  },
+  {
+    question: "50. Tag HTML yang tepat untuk mendefinisikan bagian situs web pada gambar (Asumsi gambar menunjukkan bagian paling bawah situs) adalah:",
+    options: ["foot", "footer", "bottom", "below", "ending"],
+    correct: 1,
+    explanation: "Tag `&lt;footer&gt;` adalah elemen semantik HTML5 yang mewakili bagian *footer* (kaki) untuk sebuah dokumen atau bagian."
+  }
+];
+
+const container = document.getElementById("quiz-container");
+
+// Generate soal ke halaman
+quizData.forEach((q, i) => {
+  const qDiv = document.createElement("div");
+  qDiv.classList.add("question");
+  qDiv.innerHTML = `
+    <p>${q.question}</p>
+    ${q.options.map((opt, idx) => `
+      <label><input type="radio" name="q${i}" value="${idx}"> ${String.fromCharCode(65 + idx)}. ${opt}</label><br>
+    `).join("")}
+    <div class="explanation" id="exp${i}"></div>
+  `;
+  container.appendChild(qDiv);
+});
+
+// Fungsi pengecekan jawaban yang diperbaiki
+function checkAnswers() {
+  let score = 0;
+  quizData.forEach((q, i) => {
+    const radios = document.getElementsByName(`q${i}`);
+    const expDiv = document.getElementById(`exp${i}`);
+    let userAnswer = -1;
+
+    radios.forEach((r) => {
+      if (r.checked) userAnswer = parseInt(r.value);
+    });
+
+    // Reset warna
+    radios.forEach((r) => {
+      r.parentElement.style.color = "black";
+    });
+
+    // Warnai jawaban benar dan salah
+    radios.forEach((r) => {
+      const val = parseInt(r.value);
+      if (val === q.correct) {
+        r.parentElement.style.color = "green";
+      } else if (val === userAnswer) {
+        r.parentElement.style.color = "red";
+      }
+    });
+
+    if (userAnswer === q.correct) {
+      score++;
+    }
+
+    // Pastikan penjelasan muncul
+    if (expDiv) { // Tambahkan pengecekan ini untuk memastikan elemen ada
+      expDiv.style.display = "block";
+      expDiv.innerHTML = `<strong>Penjelasan:</strong> ${q.explanation}`;
+    }
+  });
+
+  document.getElementById("result").innerText = `Skor Anda: ${score} dari ${quizData.length}`;
+}
+</script>
+
+</body>
+</html>
